@@ -39,11 +39,13 @@ class Setup < Formula
   def install
     project_dir = Pathname.new(prefix)/PROJECT_NAME
     public_dir = project_dir/"public"
-    php_lib_path = `brew --prefix php@#{PHP_VERSION}`.chomp + "/lib/httpd/modules/libphp.so"
+    log_dir = project_dir/"logs"
+    php_lib_path = "/opt/homebrew/opt/php@#{PHP_VERSION}/lib/httpd/modules/libphp.so"
 
     (project_dir/"config").mkpath
     (project_dir/"scripts").mkpath
     public_dir.mkpath
+    log_dir.mkpath
 
     # ダミーファイルをpublicフォルダに配置
     (public_dir/"index.html").write <<~EOS
@@ -59,6 +61,7 @@ class Setup < Formula
     (project_dir/"config/php-fpm.conf").write <<~EOS
       [global]
       daemonize = no
+      error_log = #{log_dir}/php-fpm.log
 
       [www]
       listen = 127.0.0.1:#{PORTS[:php]}
@@ -67,6 +70,8 @@ class Setup < Formula
       pm.start_servers = 3
       pm.min_spare_servers = 2
       pm.max_spare_servers = 4
+      access.log = #{log_dir}/php-fpm-access.log
+      slowlog = #{log_dir}/php-fpm-slow.log
     EOS
 
     (project_dir/"config/php.ini").write <<~EOS
@@ -76,16 +81,22 @@ class Setup < Formula
     (project_dir/"config/my.cnf").write <<~EOS
       [mysqld]
       port=#{PORTS[:mysql]}
+      log-error=#{log_dir}/mysql-error.log
+      general_log_file=#{log_dir}/mysql-general.log
+      slow_query_log_file=#{log_dir}/mysql-slow.log
     EOS
 
     if PORTS[:redis] > 0
       (project_dir/"config/redis.conf").write <<~EOS
         port #{PORTS[:redis]}
+        logfile #{log_dir}/redis.log
       EOS
     end
 
     (project_dir/"config/memcached.conf").write <<~EOS
       -p #{PORTS[:memcached]}
+      -l 127.0.0.1
+      -vv >> #{log_dir}/memcached.log 2>&1
     EOS
 
     (project_dir/"config/nginx.conf").write <<~EOS
@@ -94,6 +105,9 @@ class Setup < Formula
         server_name localhost;
         root #{public_dir};
         index index.php index.html index.htm;
+
+        access_log #{log_dir}/nginx-access.log;
+        error_log #{log_dir}/nginx-error.log;
 
         location / {
           try_files $uri $uri/ /index.php?$query_string;
@@ -120,6 +134,9 @@ class Setup < Formula
       <FilesMatch \.php$>
         SetHandler application/x-httpd-php
       </FilesMatch>
+
+      ErrorLog #{log_dir}/httpd-error.log
+      CustomLog #{log_dir}/httpd-access.log combined
     EOS
 
     (project_dir/"config/nginx_main.conf").write <<~EOS
@@ -282,6 +299,8 @@ class Setup < Formula
 
     Configuration files are located in:
       #{prefix}/#{PROJECT_NAME}/config/
+      Log files are located in:
+      #{prefix}/#{PROJECT_NAME}/logs/
       Please edit these files as needed.
 
     Ensure the web document root is set correctly in #{prefix}/#{PROJECT_NAME}/public. A symbolic link to this directory should be created as /path/to/your/project/public.
