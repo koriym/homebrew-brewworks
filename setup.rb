@@ -38,7 +38,6 @@ class Setup < Formula
 
   def install
     project_dir = Pathname.new(prefix)/PROJECT_NAME
-    user_public_dir = Pathname.pwd/"public"
     public_dir = project_dir/"public"
 
     (project_dir/"config").mkpath
@@ -51,7 +50,7 @@ class Setup < Formula
         <body>
           <h1>It works!</h1>
           <p>This is a placeholder. To link your project's public directory, run:</p>
-          <pre>ln -s #{public_dir} #{user_public_dir}</pre>
+          <pre>ln -fs /full_path/to/your_project/public #{public_dir} </pre>
         </body>
       </html>
     EOS
@@ -92,7 +91,7 @@ class Setup < Formula
       server {
         listen #{PORTS[:nginx]};
         server_name localhost;
-        root #{user_public_dir};
+        root #{public_dir};
         index index.php index.html index.htm;
 
         location / {
@@ -100,7 +99,7 @@ class Setup < Formula
         }
 
         location ~ \.php$ {
-          include fastcgi_params;
+          include #{HOMEBREW_PREFIX}/etc/nginx/fastcgi_params;
           fastcgi_pass 127.0.0.1:#{PORTS[:php]};
           fastcgi_index index.php;
           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
@@ -110,8 +109,8 @@ class Setup < Formula
 
     (project_dir/"config/httpd.conf").write <<~EOS
       Listen #{PORTS[:apache]}
-      DocumentRoot "#{user_public_dir}"
-      <Directory "#{user_public_dir}">
+      DocumentRoot "#{public_dir}"
+      <Directory "#{public_dir}">
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
@@ -153,57 +152,62 @@ class Setup < Formula
       function start_services() {
         set_env
 
-        # Homebrewのサービスコマンドを使用して開始
         if [ #{PORTS[:php]} -gt 0 ]; then
-          brew services start php@#{PHP_VERSION}
+          echo "Starting php-fpm with custom config..."
+          php-fpm -y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini &
         fi
         if [ #{PORTS[:mysql]} -gt 0 ]; then
-          brew services start mysql@#{MYSQL_VERSION}
+          echo "Starting mysql with custom config..."
+          mysqld --defaults-file=#{project_dir}/config/my.cnf &
         fi
         if [ #{PORTS[:redis]} -gt 0 ]; then
-          brew services start redis
+          echo "Starting redis with custom config..."
+          redis-server #{project_dir}/config/redis.conf &
         fi
         if [ #{PORTS[:memcached]} -gt 0 ]; then
-          brew services start memcached
+          echo "Starting memcached with custom config..."
+          memcached -d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached.pid &
         fi
         if [ #{PORTS[:nginx]} -gt 0 ]; then
-          brew services start nginx
+          echo "Starting nginx with custom config..."
+          nginx -c #{project_dir}/config/nginx_main.conf &
         fi
         if [ #{PORTS[:apache]} -gt 0 ]; then
-          brew services start httpd
+          echo "Starting httpd with custom config..."
+          httpd -f #{project_dir}/config/httpd.conf &
         fi
 
         echo "Services started. Please configure the following files as needed:"
         echo "#{project_dir}/config/php-fpm.conf"
         echo "#{project_dir}/config/php.ini"
         echo "#{project_dir}/config/my.cnf"
-        if [ #{PORTS[:redis]} -gt 0 ]; then
+        if [ #{PORTS[:redis]} > 0 ]; then
           echo "#{project_dir}/config/redis.conf"
         fi
-        echo "#{project_opdopir}/config/memcached.conf"
-        echo "#{opproject_dir}/config/nginx.conf"
+        echo "#{project_dir}/config/memcached.conf"
+        echo "#{project_dir}/config/nginx.conf"
         echo "#{project_dir}/config/httpd.conf"
-        echo "Ensure the web document root is set correctly in #{user_public_dir}"
+        echo "Ensure the web document root is set correctly in #{public_dir}"
       }
 
       function stop_services() {
         if [ #{PORTS[:php]} -gt 0 ]; then
-          brew services stop php@#{PHP_VERSION}
+          pkill -f "php-fpm"
         fi
         if [ #{PORTS[:mysql]} -gt 0 ]; then
-          brew services stop mysql@#{MYSQL_VERSION}
+          mysqladmin shutdown
         fi
         if [ #{PORTS[:redis]} -gt 0 ]; then
-          brew services stop redis
+          pkill -f "redis-server"
         fi
         if [ #{PORTS[:memcached]} -gt 0 ]; then
-          brew services stop memcached
+          pkill -f "memcached"
         fi
         if [ #{PORTS[:nginx]} -gt 0 ]; then
-          brew services stop nginx
+          pkill -f "nginx"
         fi
         if [ #{PORTS[:apache]} -gt 0 ]; then
-          brew services stop httpd
+          pkill -f "httpd"
         fi
       }
 
@@ -246,7 +250,7 @@ class Setup < Formula
       #{prefix}/#{PROJECT_NAME}/config/
       Please edit these files as needed.
 
-    Ensure the web document root is set correctly in #{prefix}/#{PROJECT_NAME}/public. A symbolic link to this directory should be created as #{Pathname.pwd}/public.
+    Ensure the web document root is set correctly in #{prefix}/#{PROJECT_NAME}/public. A symbolic link to this directory should be created as /path/to/your/project/public.
   EOS
   end
 
