@@ -39,6 +39,7 @@ class Setup < Formula
   def install
     project_dir = Pathname.new(prefix)/PROJECT_NAME
     public_dir = project_dir/"public"
+    php_lib_path = `brew --prefix php@#{PHP_VERSION}`.chomp + "/lib/httpd/modules/libphp.so"
 
     (project_dir/"config").mkpath
     (project_dir/"scripts").mkpath
@@ -115,7 +116,7 @@ class Setup < Formula
         AllowOverride All
         Require all granted
       </Directory>
-      LoadModule php_module /usr/local/opt/php@#{PHP_VERSION}/lib/httpd/modules/libphp.so
+      LoadModule php_module #{php_lib_path}
       <FilesMatch \.php$>
         SetHandler application/x-httpd-php
       </FilesMatch>
