@@ -136,7 +136,22 @@ class Setup < Formula
       </FilesMatch>
 
       ErrorLog #{log_dir}/httpd-error.log
-      CustomLog #{log_dir}/httpd-access.log combined
+      # CustomLog #{log_dir}/httpd-access.log combined
+
+      LoadModule mpm_prefork_module lib/httpd/modules/mod_mpm_prefork.so
+      LoadModule authz_core_module lib/httpd/modules/mod_authz_core.so
+      LoadModule authz_host_module lib/httpd/modules/mod_authz_host.so
+      LoadModule authz_user_module lib/httpd/modules/mod_authz_user.so
+      LoadModule unixd_module lib/httpd/modules/mod_unixd.so
+      LoadModule dir_module lib/httpd/modules/mod_dir.so
+      
+      ServerName localhost
+      User www
+      Group www
+      
+      <IfModule dir_module>
+          DirectoryIndex index.php index.html
+      </IfModule>
     EOS
 
     (project_dir/"config/nginx_main.conf").write <<~EOS
@@ -299,12 +314,14 @@ class Setup < Formula
 
     Configuration files are located in:
       #{prefix}/#{PROJECT_NAME}/config/
-      Log files are located in:
-      #{prefix}/#{PROJECT_NAME}/logs/
       Please edit these files as needed.
 
-    Ensure the web document root is set correctly in #{prefix}/#{PROJECT_NAME}/public. A symbolic link to this directory should be created as /path/to/your/project/public.
-  EOS
+    Log files are located in:
+      #{prefix}/#{PROJECT_NAME}/logs/
+
+    Web document Root is located in:
+      #{prefix}/#{PROJECT_NAME}/public
+EOS
   end
 
   test do
