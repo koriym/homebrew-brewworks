@@ -6,8 +6,7 @@ class Setup < Formula
   url "file:///dev/null"  # ダミーのURL
 
   ########################################################
-  # 以下の設定を変更してください
-  # プロジェクト名、依存関係、ポート番号を設定
+  # Change the following settings
   PROJECT_NAME = "myproject"
   PHP_VERSION = "8.3"
   MYSQL_VERSION = "8.0"
@@ -21,6 +20,7 @@ class Setup < Formula
     "composer",
     "node"
   ]
+  # Services not used are set to zero. (使わないサービスは0に)
   PORTS = {
     php: 9001,
     mysql: 3307,
@@ -171,7 +171,7 @@ class Setup < Formula
 
     (project_dir/"env.sh").write <<~EOS
       #!/bin/bash
-      export PATH="/usr/local/opt/php@#{PHP_VERSION}/bin:/usr/local/opt/mysql@#{MYSQL_VERSION}/bin:/usr/local/opt/redis/bin:/usr/local/opt/memcached/bin:/usr/local/opt/nginx/bin:/usr/local/opt/httpd/bin:/usr/local/opt/node/bin:$PATH"
+      export PATH="/opt/homebrew/opt/php@#{PHP_VERSION}/bin:/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin:/opt/homebrew/opt/redis/bin:/opt/homebrew/opt/memcached/bin:/opt/homebrew/opt/nginx/bin:/opt/homebrew/opt/httpd/bin:/opt/homebrew/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{project_dir}/config"
     EOS
 
@@ -285,6 +285,10 @@ class Setup < Formula
           ;;
         *)
           echo "Usage: #{PROJECT_NAME} {env|start|stop}"
+          echo "Commands:"
+          echo "  source #{PROJECT_NAME} env  - Set the environment variables for the project."
+          echo "  #{PROJECT_NAME} start       - Start the project services."
+          echo "  #{PROJECT_NAME} stop        - Stop the project services."
           exit 1
           ;;
       esac
@@ -294,6 +298,9 @@ class Setup < Formula
     chmod "+x", project_dir/"scripts/manage_services.sh"
 
     bin.install_symlink project_dir/"scripts/manage_services.sh" => PROJECT_NAME
+
+    # Show Usage
+    system project_dir/"scripts/manage_services.sh"
   end
 
   def post_install
@@ -325,17 +332,26 @@ EOS
   end
 
   test do
-    system "#{bin}/php", "-v"
-    system "#{bin}/mysql", "--version"
+    if PORTS[:php] > 0
+      system "#{bin}/php", "-v"
+    end
+    if PORTS[:mysql] > 0
+      system "#{bin}/mysql", "--version"
+    end
     if PORTS[:redis] > 0
       system "#{bin}/redis-server", "--version"
     end
     if PORTS[:memcached] > 0
       system "#{bin}/memcached", "-h"
     end
-    system "#{bin}/nginx", "-v"
-    system "#{bin}/httpd", "-v"
-    system "#{bin}/composer", "--version"
-    system "#{bin}/node", "--version"
+    if PORTS[:nginx] > 0
+      system "#{bin}/nginx", "-v"
+    end
+    if PORTS[:httpd] > 0
+      system "#{bin}/httpd", "-v"
+    end
+    if PORTS[:node] > 0
+      system "#{bin}/node", "--version"
+    end
   end
 end
