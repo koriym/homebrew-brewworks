@@ -1,14 +1,13 @@
 require "pathname"
 
-class Setup < Formula
-  desc "Installs project-specific dependencies with custom settings"
+class Brewworks < Formula
   version "1.0.0"
   url "file:///dev/null"  # ダミーのURL
 
   ########################################################
   # Change the following settings
-  PROJECT_NAME = "myproject"
-  PHP_VERSION = "8.3"
+  PROJECT_NAME = "myapp"
+  PHP_VERSION = "8.2"
   MYSQL_VERSION = "8.0"
   DEPENDENCIES = [
     "php@#{PHP_VERSION}",
@@ -298,9 +297,6 @@ class Setup < Formula
     chmod "+x", project_dir/"scripts/manage_services.sh"
 
     bin.install_symlink project_dir/"scripts/manage_services.sh" => PROJECT_NAME
-
-    # Show Usage
-    system project_dir/"scripts/manage_services.sh"
   end
 
   def post_install
