@@ -50,7 +50,7 @@ class Setup < Formula
         <body>
           <h1>It works!</h1>
           <p>This is a placeholder. To link your project's public directory, run:</p>
-          <pre>ln -fs /full_path/to/your_project/public #{public_dir} </pre>
+          <pre>ln -fs /full_path/to/your_project/public #{public_dir}</pre>
         </body>
       </html>
     EOS
@@ -152,29 +152,58 @@ class Setup < Formula
       function start_services() {
         set_env
 
-        if [ #{PORTS[:php]} -gt 0 ]; then
-          echo "Starting php-fpm with custom config..."
-          php-fpm -y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini &
+        if pgrep -f "php-fpm" > /dev/null; then
+          echo "php-fpm is already running"
+        else
+          if [ #{PORTS[:php]} -gt 0 ]; then
+            echo "Starting php-fpm with custom config..."
+            php-fpm -y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini &
+          fi
         fi
-        if [ #{PORTS[:mysql]} -gt 0 ]; then
-          echo "Starting mysql with custom config..."
-          mysqld --defaults-file=#{project_dir}/config/my.cnf &
+
+        if pgrep -f "mysqld" > /dev/null; then
+          echo "mysql is already running"
+        else
+          if [ #{PORTS[:mysql]} -gt 0 ]; then
+            echo "Starting mysql with custom config..."
+            mysqld --defaults-file=#{project_dir}/config/my.cnf &
+          fi
         fi
-        if [ #{PORTS[:redis]} -gt 0 ]; then
-          echo "Starting redis with custom config..."
-          redis-server #{project_dir}/config/redis.conf &
+
+        if pgrep -f "redis-server" > /dev/null; then
+          echo "redis-server is already running"
+        else
+          if [ #{PORTS[:redis]} -gt 0 ]; then
+            echo "Starting redis with custom config..."
+            redis-server #{project_dir}/config/redis.conf &
+          fi
         fi
-        if [ #{PORTS[:memcached]} -gt 0 ]; then
-          echo "Starting memcached with custom config..."
-          memcached -d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached.pid &
+
+        if pgrep -f "memcached" > /dev/null; then
+          echo "memcached is already running"
+        else
+          if [ #{PORTS[:memcached]} -gt 0 ]; then
+            echo "Starting memcached with custom config..."
+            memcached -d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached.pid &
+          fi
         fi
-        if [ #{PORTS[:nginx]} -gt 0 ]; then
-          echo "Starting nginx with custom config..."
-          nginx -c #{project_dir}/config/nginx_main.conf &
+
+        if pgrep -f "nginx" > /dev/null; then
+          echo "nginx is already running"
+        else
+          if [ #{PORTS[:nginx]} -gt 0 ]; then
+            echo "Starting nginx with custom config..."
+            nginx -c #{project_dir}/config/nginx_main.conf &
+          fi
         fi
-        if [ #{PORTS[:apache]} -gt 0 ]; then
-          echo "Starting httpd with custom config..."
-          httpd -f #{project_dir}/config/httpd.conf &
+
+        if pgrep -f "httpd" > /dev/null; then
+          echo "httpd is already running"
+        else
+          if [ #{PORTS[:apache]} -gt 0 ]; then
+            echo "Starting httpd with custom config..."
+            httpd -f #{project_dir}/config/httpd.conf &
+          fi
         fi
 
         echo "Services started. Please configure the following files as needed:"
