@@ -236,7 +236,11 @@ class Setup < Formula
 
   def post_install
     PHP_EXTENSIONS.each do |ext|
-      system "#{HOMEBREW_PREFIX}/bin/pecl", "install", ext
+      unless system("pecl list | grep -q #{ext}")
+        system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "install", ext
+      else
+        puts "#{ext} is already installed."
+      end
     end
   end
 
