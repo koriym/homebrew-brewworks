@@ -4,9 +4,27 @@ BrewWorks, a robust Homebrew formula, revolutionizes the way developers manage t
 
 ## Bringing Configuration to the Forefront
 
-One of the standout features of BrewWorks is its ability to create a dedicated directory for each project. This directory serves as a central hub, housing all the essential configuration files and logs specific to your project. By copying this directory to your project's root and creating symlinks, you establish a direct connection between your project and the BrewWorks environment.
+One of the standout features of BrewWorks is its ability to create a dedicated directory for each project. This directory serves as a central hub, housing all the essential configuration files and logs specific to your project.
 
-With this approach, gone are the days of endlessly searching for scattered configuration files. Everything you need is readily available within your project's directory, enabling you to easily locate, modify, and manage your project's configuration. This level of accessibility and organization is a game-changer, saving you valuable time and effort.
+## Integrating with Your Project
+
+To establish a direct connection between your project and the BrewWorks environment, follow these steps:
+
+1. Copy the BrewWorks-generated directory (e.g., `myapp`) to your project's root directory, renaming it to `.brewworks`:
+
+```shell
+cp -R /opt/homebrew/opt/myapp/myapp /path/to/your/project/.brewworks
+```
+2. Create symlinks from the original BrewWorks directory to your project's `.brewworks` directory:
+
+```shell
+ln -s /path/to/your/project/.brewworks/config /opt/homebrew/opt/myapp/myapp/config
+ln -s /path/to/your/project/.brewworks/logs  /opt/homebrew/opt/myapp/myapp/logs
+```
+
+By integrating the BrewWorks-generated directory with your project under a consistent `.brewworks` directory, you can easily manage your project-specific configuration files and logs within your project's repository. This approach enables version control, facilitates collaboration, and keeps your development environment closely tied to your project, while also providing a clear branding for BrewWorks-managed files.
+
+With this setup, gone are the days of endlessly searching for scattered configuration files. Everything you need is readily available within your project's directory, enabling you to easily locate, modify, and manage your project's configuration. This level of accessibility and organization is a game-changer, saving you valuable time and effort.
 
 ## Transparency at Its Best
 
