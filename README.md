@@ -1,117 +1,119 @@
-# BrewWorks- Project-Specific Development Environment Setup for Mac
+# BrewWorks - Project-Specific Development Environment Setup for Mac
 
-This Homebrew formula is a powerful tool that allows you to easily set up project-specific development environments on Mac without using Docker. It enables you to install and manage common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js with customized configurations for each project.
-Features
+BrewWorks is a powerful Homebrew formula that allows you to easily set up project-specific development environments on Mac without using Docker. It enables you to install and manage common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js with customized configurations for each project.
 
-Install all necessary services for a project in one go, similar to Docker. Services not in use can be skipped by specifying port 0.
-Generate custom commands for each project, allowing simple management of the development environment (e.g., myapp start, source myapp env).
-Create a dedicated custom folder for each project to centralize service port numbers, configuration files, and log directories.
-Utilize native Mac services for improved performance compared to Docker.
-Flexibility to add other services as needed.
+## Features
 
-## A New Choice for Project-Specific Dependency Management
+- Install all necessary services for a project in one go, similar to Docker. 
+- Generate custom commands for each project, allowing simple management of the development environment (e.g., `myapp start`, `source myapp env`).
+- Create a dedicated custom folder for each project to centralize service port numbers, configuration files, and log directories.
+- Utilize native Mac services for improved performance compared to Docker.
+- Flexibility to add other services as needed.
 
-This Homebrew formula offers a new approach to project-specific dependency management on Mac, providing an alternative to traditional global Homebrew installations and Docker-based setups. It combines the simplicity of Homebrew with the isolation benefits of project-specific environments.
-
-For a detailed exploration of this approach and how it compares to other options, please refer to our article: [Homebrew Formula: A New Choice for Project-Specific Dependency Management on Mac](link-to-the-article).
+For a detailed exploration of this approach, its design philosophy, and how it compares to other options, please refer to our [self-review document](self-review.md).
 
 ## Usage
 
-1. Copy this formula (brewworks.rb) to your project's root directory.
-1. Modify the following settings in the formula according to your project's requirements:
+1. Download [brewworks.rb](https://github.com/koriym/homebrew-brewworks/blob/1.x/brewworks.rb) to your project's root directory.
+2. Modify the settings in `brewworks.rb` according to your project's requirements:
+
+```ruby
+  # Change the following settings
+  PROJECT_NAME = "myapp"
+  PHP_VERSION = "8.2"
+  MYSQL_VERSION = "8.0"
+  DEPENDENCIES = [
+    "php@#{PHP_VERSION}",
+    "mysql@#{MYSQL_VERSION}",
+    "redis",
+    "memcached",
+    "nginx",
+    "httpd",
+    "composer",
+    "node"
+  ]
+  PORTS = {
+    php: 9001,
+    mysql: 3307,
+    redis: 6379,
+    memcached: 11211,
+    nginx: 8080,
+    httpd: 8081
+  }
+  PHP_EXTENSIONS = ["xdebug", "pcov"]
+```
+
+3. Install BrewWorks:
 
 ```
-PROJECT_NAME = "myapp"
-PHP_VERSION = "8.3"
-MYSQL_VERSION = "8.0"
-DEPENDENCIES = [
-  "php@#{PHP_VERSION}",
-  "mysql@#{MYSQL_VERSION}",
-  "redis",
-  "memcached",
-  "nginx",
-  "httpd",
-  "composer",
-  "node"
-]
-PORTS = {
-  php: 9001,
-  mysql: 3307,
-  redis: 6379,
-  memcached: 11211,
-  nginx: 8080,
-  httpd: 0 # no install
-}
-PHP_EXTENSIONS = ["xdebug", "pcov"]
-```
-3. Execute the following command
-
-```shell
 brew install ./brewworks.rb
 ```
 
-- The required services and project-specific commands are generated based on the specification.
-- The name specified in PROJECT_NAME becomes the command name.
+The required services and project-specific commands are generated based on the specification. The name specified in `PROJECT_NAME` becomes the command name.
+
+### Managing services
 
 ```shell
-$ myapp
+myapp start      # Start services
 
-Usage: {source} myapp {env|start|stop}
-Commands:
-  source myproject env  - Set the environment variables for the project.
-  myproject start       - Start the project services.
-  myproject stop        - Stop the project services.
+myapp stop       # Stop services
+````
+
+The project name you specify is the command name. 
+
+### Setting up environment
+
 ```
-
-### Start services
-
-```shell
-myapp start
-```
-
-The installed `myapp` command does not look at files in local directories. It is the same no matter where you operate it from.
-
-### Stop services
-
-```shell
-myapp stop
-```
-
-### Specify binary version
-
-```shell
 source myapp env
 ```
-It will cause `php` and `mysql` to point to the specified version of the binary.
+
+This command points `php` and `mysql` to the specified version of the binary.
 
 ```shell
-$ source myproject env
+% which php
+/opt/homebrew/opt/php@8.2/bin/php
 
-$ which php
-/opt/homebrew/opt/php@8.3/bin/php
-
-$ which mysql
-/opt/homebrew/opt/mysql@8.0/bin/mysql
+% which mysql
+mysql: aliased to /opt/homebrew/opt/mysql@8.0/bin/mysql --defaults-file=/opt/homebrew/Cellar/brewworks/1.0.0/myapp/config/my.cnf
 ```
 
-This formula is a powerful tool that allows you to quickly set up optimized development environments for each project, similar to Docker but using native Mac services. It utilizes Homebrew, a well-known package manager for Mac, making it highly familiar and easy to learn for most Mac developers.
-The custom commands and dedicated folders generated for each project simplify the management of development environments, making it intuitive and straightforward. Onboarding new development environments and switching between projects becomes seamless, and sharing a unified development environment within a team is effortless.
+## Project Structure
+
+BrewWorks generates a dedicated folder for each project:
 
 ```shell
 myapp
 ├── config
-│   ├── httpd.conf
-│   ├── memcached.conf
-│   ├── my.cnf
-│   ├── nginx.conf
-│   ├── nginx_main.conf
-│   ├── php-fpm.conf
-│   ├── php.ini
-│   └── redis.conf
+│   ├── httpd.conf
+│   ├── memcached.conf
+│   ├── my.cnf
+│   ├── nginx.conf
+│   ├── nginx_main.conf
+│   ├── php-fpm.conf
+│   ├── php.ini
+│   └── redis.conf
 ├── logs
-└── public
-    └── index.html
-
+│   ├── mysql-error.log
+│   ├── nginx-access.log
+│   ├── nginx-error.log
+│   ├── php-fpm-access.log
+│   ├── php-fpm.log
+│   └── redis.log```
+├── public  (Please link your public folder symlink here）
+│   └── index.html
 ```
 
-With its flexibility to customize according to project-specific requirements and a simple, user-friendly interface, this formula is an excellent alternative to Docker on Mac, significantly boosting development efficiency.
+This formula is a powerful tool that allows you to quickly set up optimized development environments for each project, similar to Docker but using native Mac services. It utilizes Homebrew, a well-known package manager for Mac, making it highly familiar and easy to learn for most Mac developers.
+
+The custom commands and dedicated folders generated for each project simplify the management of development environments, making it intuitive and straightforward. Onboarding new development environments and switching between projects becomes seamless, and sharing a unified development environment within a team is effortless.
+
+## Conclusion
+
+BrewWorks is an excellent alternative to Docker on Mac, enhancing development efficiency with its customizable, user-friendly interface. Unlike Docker, which relies on virtualization to run Linux containers on Mac, BrewWorks leverages native Mac services for better performance.
+
+Docker's performance on Mac is often hindered by the need to create a virtualized environment that bridges the architectural differences between macOS and Linux. Despite ongoing efforts by developers to optimize Docker for macOS, the inherent overhead of this virtualization layer results in slower performance compared to running services natively.
+
+BrewWorks simplifies the setup process by allowing the installation of PHP, Composer, and other necessary services through Homebrew. This means you only need Homebrew to set up your development environment, reducing complexity.
+
+While Docker remains essential for production environments, BrewWorks offers a streamlined solution for development on Mac. By combining native performance with Homebrew's simplicity, BrewWorks enhances productivity and development experience, making it an invaluable tool for Mac developers.
+
