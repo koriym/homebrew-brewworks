@@ -15,7 +15,12 @@ For a detailed exploration of this approach, its design philosophy, and how it c
 ## Usage
 
 1. Download [brewworks.rb](https://github.com/koriym/homebrew-brewworks/blob/1.x/brewworks.rb) to your project's root directory.
-2. Modify the settings in `brewworks.rb` according to your project's requirements:
+
+```shell
+wget https://raw.githubusercontent.com/koriym/homebrew-brewworks/1.x/brewworks.rb
+```
+
+3. Modify the settings in `brewworks.rb` according to your project's requirements:
 
 ```ruby
     PROJECT_NAME = "brewworks"
