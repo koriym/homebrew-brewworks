@@ -18,13 +18,15 @@ The custom Homebrew formula approach presents a new choice for project-specific 
 
 Key benefits of the custom Homebrew formula approach include:
 
-1. **Project-Specific Dependencies**: Each project gets its own set of packages and dependencies, installed in an isolated environment. This eliminates conflicts between projects and ensures that each project has the exact dependencies it needs.
+1. **Project-Specific Dependencies**: Each project gets its own set of packages and dependencies, installed in an isolated environment. This eliminates conflicts between projects and ensures that each project has the exact dependencies it needs. For databases like MySQL, directories are generated specifically for each project rather than using global ones. This setup minimally impacts global files.
 
 2. **Customizable Configurations**: The formula allows developers to define project-specific configuration files, enabling fine-grained control over package settings. This flexibility empowers developers to tailor their development environments to their project's unique requirements.
 
 3. **Isolated Logging**: Log files are stored separately for each project, making it easier to manage and troubleshoot project-specific issues. This isolation helps keep project logs organized and accessible.
 
 4. **Simplified Environment Management**: The formula utilizes environment variables to manage different versions of packages, such as PHP. This simplifies the process of switching between different versions of a package for different projects.
+
+5. **Complete Cleanup**: By running `brew uninstall ./brewworks.rb`, you can remove not only the dependent packages but also all generated files, including database data. This provides a level of cleanup comparable to Docker's ability to remove images and associated data, appealing to those who were hesitant to use local packages due to potential residue.
 
 ## Advantages over Docker
 
@@ -39,6 +41,8 @@ The custom Homebrew formula approach offers several advantages over Docker, part
 4. **Reduced Resource Overhead**: Docker's containerization approach introduces additional resource overhead, especially on Mac where it relies on virtualization. The custom Homebrew formula approach eliminates this overhead, resulting in reduced memory consumption and CPU utilization. This translates to better overall system performance and responsiveness.
 
 5. **Easier Debugging**: Debugging applications running in Docker containers can be challenging, particularly when it comes to attaching debuggers or accessing logs. The custom Homebrew formula approach simplifies debugging by running applications directly on the host machine, allowing developers to use their familiar debugging tools and techniques without any additional complexity.
+
+6. **Complete and Clean Removal**: The ability to completely remove all dependencies and generated files, including database data, ensures that development environments can be cleaned thoroughly. This makes it suitable for developers who prefer clean and isolated environments without residue from previous setups.
 
 ## Conclusion
 
