@@ -294,8 +294,8 @@ class Brewworks < Formula
              "--basedir=/opt/homebrew/opt/mysql@5.7",
              "--datadir=#{project_dir}/mysql",
              "--tmpdir=/tmp"
-    elsif "#{MYSQL_VERSION}" == "8.0"
-      # MySQL 8.0用の初期化
+    elsif MYSQL_VERSION.split('.').first == "8"
+      # MySQL 8.x用の初期化
       system "/opt/homebrew/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
     else
       odie "Unsupported MySQL version: #{MYSQL_VERSION}"
