@@ -1,13 +1,13 @@
 require "pathname"
 
 class Brewworks < Formula
+  url "file:///dev/null"
   version "1.0.0"
-  url "file:///dev/null"  # ダミーのURL
 
   ########################################################
   # Change the following settings
-  PROJECT_NAME = "myapp"
-  PHP_VERSION = "8.2"
+  PROJECT_NAME = "brewworks"
+  PHP_VERSION = "8.3"
   MYSQL_VERSION = "8.0"
   DEPENDENCIES = [
     "php@#{PHP_VERSION}",
