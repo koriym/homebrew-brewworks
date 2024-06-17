@@ -18,29 +18,29 @@ For a detailed exploration of this approach, its design philosophy, and how it c
 2. Modify the settings in `brewworks.rb` according to your project's requirements:
 
 ```ruby
-  # Change the following settings
-  PROJECT_NAME = "brewworks"
-  PHP_VERSION = "8.3"
-  MYSQL_VERSION = "8.0"
-  DEPENDENCIES = [
-    "php@#{PHP_VERSION}",
-    "mysql@#{MYSQL_VERSION}",
-    "redis",
-    "memcached",
-    "nginx",
-    "httpd",
-    "composer",
-    "node"
-  ]
-  PORTS = {
-    php: 9000,
-    mysql: 3306,
-    redis: 6379,
-    memcached: 11211,
-    nginx: 8080,
-    httpd: 8081
-  }
-  PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
+    PROJECT_NAME = "brewworks"
+    PHP_VERSION = "8.3"
+    MYSQL_VERSION = "8.0"
+    DEPENDENCIES = [
+      "php@#{PHP_VERSION}",
+      "mysql@#{MYSQL_VERSION}",
+      "redis",
+      "memcached",
+      "nginx",
+      "httpd",
+      "composer",
+      "node"
+    ]
+    # The port number for services that do not start is set to zero.
+    PORTS = {
+      php: 9000,
+      mysql: 3306,
+      redis: 6379,
+      memcached: 11211,
+      nginx: 8080,
+      httpd: 8081
+    }
+    PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
 ```
 
 3. Change the file name as well as the class name in brewworks.rb to match the PROJECT_NAME you have set. For example, if you set the PROJECT_NAME as "myapp", the file name will be myapp.rb, and the class name inside will be Myapp.
