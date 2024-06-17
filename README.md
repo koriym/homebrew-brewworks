@@ -101,6 +101,7 @@ myapp
 │   └── redis.log
 ├── public  (Please link your public folder symlink here）
 │   └── index.html
+├── mysql (datbase data folder)
 ```
 
 This formula is a powerful tool that allows you to quickly set up optimized development environments for each project, similar to Docker but using native Mac services. It utilizes Homebrew, a well-known package manager for Mac, making it highly familiar and easy to learn for most Mac developers.
