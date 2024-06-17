@@ -83,6 +83,7 @@ class Brewworks < Formula
       log-error=#{log_dir}/mysql-error.log
       general_log_file=#{log_dir}/mysql-general.log
       slow_query_log_file=#{log_dir}/mysql-slow.log
+      datadir="#{project_dir}/mysql"
       pid-file="#{project_dir}/mysql/mysqld.pid"
 
       [client]
@@ -179,7 +180,7 @@ class Brewworks < Formula
       #!/bin/bash
       export PATH="/opt/homebrew/opt/php@#{PHP_VERSION}/bin:/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin:/opt/homebrew/opt/redis/bin:/opt/homebrew/opt/memcached/bin:/opt/homebrew/opt/nginx/bin:/opt/homebrew/opt/httpd/bin:/opt/homebrew/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{project_dir}/config"
-      alias mysql="/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysql -defaults-file=#{project_dir}/config/my.cnf"
+      alias mysql="/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{project_dir}/config/my.cnf"
     EOS
 
     (project_dir/"scripts/manage_services.sh").write <<~EOS
@@ -242,11 +243,11 @@ class Brewworks < Formula
 
       function stop_services() {
         # php-fpm has no known 'graceful' shutdown, use pkill
-        manage_service "Stopping" "php-fpm" #{PORTS[:php-fpm]} "pkill" "-f php-fpm" ""
+        manage_service "Stopping" "php-fpm" #{PORTS[:php]} "pkill" "-f php-fpm" ""
         # Use mysqladmin for mysql shutdown
         manage_service "Stopping" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file==#{project_dir}/config/my.cnf -uroot shutdown" ""
         # Use redis-cli for redis-server shutdown
-        manage_service "Stopping" "redis-server" #{PORTS[:redis-server]} "/opt/homebrew/bin/redis-cli" "shutdown" ""
+        manage_service "Stopping" "redis-server" #{PORTS[:redis]} "/opt/homebrew/bin/redis-cli" "shutdown" ""
         # memcached has no known 'graceful' shutdown, use pkill
         manage_service "Stopping" "memcached" #{PORTS[:memcached]} "pkill" "-f memcached" ""
         # nginx uses the -s stop command for a fast shutdown
