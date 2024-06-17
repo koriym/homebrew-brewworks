@@ -253,7 +253,7 @@ class Brewworks < Formula
         # nginx uses the -s stop command for a fast shutdown
         manage_service "Stopping" "nginx" #{PORTS[:nginx]} "/opt/homebrew/bin/nginx" "-s stop" ""
         # Apache can be stopped using apachectl
-        manage_service "Stopping" "httpd" #{PORTS[:httpd]} " /opt/homebrew/bin/apachectl" "-k stop" ""
+        manage_service "Stopping" "httpd" #{PORTS[:httpd]} "/opt/homebrew/bin/apachectl" "-k stop" ""
     }
 
 
