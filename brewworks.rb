@@ -285,21 +285,8 @@ class Brewworks < Formula
 
     bin.install_symlink project_dir/"scripts/manage_services.sh" => PROJECT_NAME
 
-    # ユーザーを取得
-    user = ENV["USER"]
     # データディレクトリの初期化
-    if "#{MYSQL_VERSION}" == "5.7"
-      # MySQL 5.7用の初期化
-      system "/opt/homebrew/opt/mysql@5.7/bin/mysql_install_db", "--user=#{user}",
-             "--basedir=/opt/homebrew/opt/mysql@5.7",
-             "--datadir=#{project_dir}/mysql",
-             "--tmpdir=/tmp"
-    elsif MYSQL_VERSION.split('.').first == "8"
-      # MySQL 8.x用の初期化
-      system "/opt/homebrew/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
-    else
-      odie "Unsupported MySQL version: #{MYSQL_VERSION}"
-    end
+    system "/opt/homebrew/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
   end
 
   def post_install
