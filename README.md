@@ -50,6 +50,7 @@ For a detailed exploration of this approach, its design philosophy, and how it c
 ```
 brew install ./myapp.rb 
 ```
+And just like that, your project-specific development environment is set up and ready to go.
 
 With BrewWorks, setting up your development environment is incredibly simple and efficient. Unlike traditional setups where you would need to manually install PHP, download Composer, and configure permissions, BrewWorks takes care of all these steps for you. No more hassle of managing multiple dependencies and configurations separately for each project!
 
