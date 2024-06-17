@@ -98,7 +98,7 @@ myapp
 │   ├── nginx-error.log
 │   ├── php-fpm-access.log
 │   ├── php-fpm.log
-│   └── redis.log```
+│   └── redis.log
 ├── public  (Please link your public folder symlink here）
 │   └── index.html
 ```
