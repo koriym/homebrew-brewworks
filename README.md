@@ -19,8 +19,8 @@ For a detailed exploration of this approach, its design philosophy, and how it c
 
 ```ruby
   # Change the following settings
-  PROJECT_NAME = "myapp"
-  PHP_VERSION = "8.2"
+  PROJECT_NAME = "brewworks"
+  PHP_VERSION = "8.3"
   MYSQL_VERSION = "8.0"
   DEPENDENCIES = [
     "php@#{PHP_VERSION}",
@@ -33,14 +33,14 @@ For a detailed exploration of this approach, its design philosophy, and how it c
     "node"
   ]
   PORTS = {
-    php: 9001,
-    mysql: 3307,
+    php: 9000,
+    mysql: 3306,
     redis: 6379,
     memcached: 11211,
     nginx: 8080,
     httpd: 8081
   }
-  PHP_EXTENSIONS = ["xdebug", "pcov"]
+  PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
 ```
 
 3. Change the file name as well as the class name in brewworks.rb to match the PROJECT_NAME you have set. For example, if you set the PROJECT_NAME as "myapp", the file name will be myapp.rb, and the class name inside will be Myapp.
@@ -48,7 +48,7 @@ For a detailed exploration of this approach, its design philosophy, and how it c
 4. Lastly, install BrewWorks with the new file name:
 
 ```
-brew install --build-from-source ./myapp.rb 
+brew install ./myapp.rb 
 ```
 
 Try these steps and see if it successfully meets your project's requirements. Let me know if you encounter any problems.
