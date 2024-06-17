@@ -61,15 +61,6 @@ Let's explore what makes this setup so powerful:
 - **Centralized Configuration**: All configuration files, log directories, and port numbers are neatly organized in a dedicated folder for your project, making it easy to maintain and update.
 - **Improved Performance**: By leveraging native Mac services instead of Docker, you'll experience faster performance and reduced overhead.
 - **Flexibility and Extensibility**: BrewWorks is designed to be flexible, allowing you to add additional services and customize configurations as your project evolves.
-- 
-## Congratulations! Your Environment is Ready!
-
-You've successfully installed and configured your project-specific development environment with BrewWorks. Now, let's explore what makes this setup so powerful:
-
-- **Custom Commands**: Easily start and manage your services with intuitive commands. For instance, simply run brewworks start to kick off all your services in one go.
-- **Centralized Configuration**: All configuration files, log directories, and port numbers are neatly organized in a dedicated folder for your project, making it easy to maintain and update.
-- **Improved Performance**: By leveraging native Mac services instead of Docker, you'll experience faster performance and reduced overhead.
-- **Flexibility and Extensibility**: BrewWorks is designed to be flexible, allowing you to add additional services and customize configurations as your project evolves.
 
 ## Next Steps
 
