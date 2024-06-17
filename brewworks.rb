@@ -30,7 +30,6 @@ class Brewworks < Formula
   }
   PHP_EXTENSIONS = ["xdebug", "pcov"]
   ########################################################
-
   DEPENDENCIES.each do |dep|
     depends_on dep
   end
@@ -44,7 +43,7 @@ class Brewworks < Formula
     (project_dir/"config").mkpath
     (project_dir/"scripts").mkpath
     public_dir.mkpath
-    log_dir.mkpath
+    Dir.mkdir(log_dir,  0750)
 
     # ダミーファイルをpublicフォルダに配置
     (public_dir/"index.html").write <<~EOS
@@ -80,9 +79,15 @@ class Brewworks < Formula
     (project_dir/"config/my.cnf").write <<~EOS
       [mysqld]
       port=#{PORTS[:mysql]}
+      socket="/tmp/mysql_#{PORTS[:mysql]}.sock"
       log-error=#{log_dir}/mysql-error.log
       general_log_file=#{log_dir}/mysql-general.log
       slow_query_log_file=#{log_dir}/mysql-slow.log
+      pid-file="#{project_dir}/mysql/mysqld.pid"
+
+      [client]
+      port=#{PORTS[:mysql]}
+      socket="/tmp/mysql_#{PORTS[:mysql]}.sock"
     EOS
 
     if PORTS[:redis] > 0
@@ -92,11 +97,13 @@ class Brewworks < Formula
       EOS
     end
 
-    (project_dir/"config/memcached.conf").write <<~EOS
-      -p #{PORTS[:memcached]}
-      -l 127.0.0.1
-      -vv >> #{log_dir}/memcached.log 2>&1
-    EOS
+    if PORTS[:memcached] > 0
+      (project_dir/"config/memcached.conf").write <<~EOS
+        -p #{PORTS[:memcached]}
+        -l 127.0.0.1
+        -vv >> #{log_dir}/memcached.log 2>&1
+      EOS
+    end
 
     (project_dir/"config/nginx.conf").write <<~EOS
       server {
@@ -172,6 +179,7 @@ class Brewworks < Formula
       #!/bin/bash
       export PATH="/opt/homebrew/opt/php@#{PHP_VERSION}/bin:/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin:/opt/homebrew/opt/redis/bin:/opt/homebrew/opt/memcached/bin:/opt/homebrew/opt/nginx/bin:/opt/homebrew/opt/httpd/bin:/opt/homebrew/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{project_dir}/config"
+      alias mysql="/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysql -defaults-file=#{project_dir}/config/my.cnf"
     EOS
 
     (project_dir/"scripts/manage_services.sh").write <<~EOS
@@ -181,95 +189,58 @@ class Brewworks < Formula
         source "#{project_dir}/env.sh"
       }
 
+      function manage_service() {
+        local action=$1
+        local name=$2
+        local port=$3
+        local cmd=$4
+        local conf=$5
+        local pid_file=$6
+
+        if [ $port -gt 0 ]; then
+          if lsof -Pi :$port -sTCP:LISTEN -t > /dev/null; then
+            echo "$name is already running on port $port"
+          else
+            echo "$action $name with custom config on port $port..."
+            $cmd $conf &
+            if [ -n "$pid_file" ]; then
+              echo $! > $pid_file
+            fi
+          fi
+        fi
+      }
+
       function start_services() {
         set_env
 
-        if pgrep -f "php-fpm" > /dev/null; then
-          echo "php-fpm is already running"
-        else
-          if [ #{PORTS[:php]} -gt 0 ]; then
-            echo "Starting php-fpm with custom config..."
-            php-fpm -y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini &
-          fi
-        fi
+        manage_service "Starting" "php-fpm" #{PORTS[:php]} "/opt/homebrew/opt/php@#{PHP_VERSION}/sbin/php-fpm" "-y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini" ""
+        manage_service "Starting" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe" "--defaults-file=#{project_dir}/config/my.cnf" ""
+        manage_service "Starting" "redis-server" #{PORTS[:redis]} "redis-server" "#{project_dir}/config/redis.conf" ""
+        manage_service "Starting" "memcached" #{PORTS[:memcached]} "memcached" "-d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached_#{PORTS[:memcached]}.pid" ""
+        manage_service "Starting" "nginx" #{PORTS[:nginx]} "nginx" "-c #{project_dir}/config/nginx_main.conf" ""
+        manage_service "Starting" "httpd" #{PORTS[:apache]} "httpd" "-f #{project_dir}/config/httpd.conf" ""
 
-        if pgrep -f "mysqld" > /dev/null; then
-          echo "mysql is already running"
-        else
-          if [ #{PORTS[:mysql]} -gt 0 ]; then
-            echo "Starting mysql with custom config..."
-            mysqld --defaults-file=#{project_dir}/config/my.cnf &
-          fi
-        fi
-
-        if pgrep -f "redis-server" > /dev/null; then
-          echo "redis-server is already running"
-        else
-          if [ #{PORTS[:redis]} -gt 0 ]; then
-            echo "Starting redis with custom config..."
-            redis-server #{project_dir}/config/redis.conf &
-          fi
-        fi
-
-        if pgrep -f "memcached" > /dev/null; then
-          echo "memcached is already running"
-        else
-          if [ #{PORTS[:memcached]} -gt 0 ]; then
-            echo "Starting memcached with custom config..."
-            memcached -d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached.pid &
-          fi
-        fi
-
-        if pgrep -f "nginx" > /dev/null; then
-          echo "nginx is already running"
-        else
-          if [ #{PORTS[:nginx]} -gt 0 ]; then
-            echo "Starting nginx with custom config..."
-            nginx -c #{project_dir}/config/nginx_main.conf &
-          fi
-        fi
-
-        if pgrep -f "httpd" > /dev/null; then
-          echo "httpd is already running"
-        else
-          if [ #{PORTS[:apache]} -gt 0 ]; then
-            echo "Starting httpd with custom config..."
-            httpd -f #{project_dir}/config/httpd.conf &
-          fi
-        fi
-
-        echo "Services started. Please configure the following files as needed:"
+        echo "Services started with these settings:"
         echo "#{project_dir}/config/php-fpm.conf"
         echo "#{project_dir}/config/php.ini"
         echo "#{project_dir}/config/my.cnf"
-        if [ #{PORTS[:redis]} > 0 ]; then
-          echo "#{project_dir}/config/redis.conf"
-        fi
-        echo "#{project_dir}/config/memcached.conf"
-        echo "#{project_dir}/config/nginx.conf"
-        echo "#{project_dir}/config/httpd.conf"
-        echo "Ensure the web document root is set correctly in #{public_dir}"
+        [ #{PORTS[:redis]} -gt 0 ] && echo "#{project_dir}/config/redis.conf"
+        [ #{PORTS[:memcached]} -gt 0 ] && echo "#{project_dir}/config/memcached.conf"
+        [ #{PORTS[:nginx]} -gt 0 ] && echo "#{project_dir}/config/nginx.conf"
+        [ #{PORTS[:apache]} -gt 0 ] && echo "#{project_dir}/config/httpd.conf"
+        echo "The web document root: #{public_dir}"
       }
 
       function stop_services() {
-        if [ #{PORTS[:php]} -gt 0 ]; then
-          pkill -f "php-fpm"
-        fi
-        if [ #{PORTS[:mysql]} -gt 0 ]; then
-          mysqladmin shutdown
-        fi
-        if [ #{PORTS[:redis]} -gt 0 ]; then
-          pkill -f "redis-server"
-        fi
-        if [ #{PORTS[:memcached]} -gt 0 ]; then
-          pkill -f "memcached"
-        fi
-        if [ #{PORTS[:nginx]} -gt 0 ]; then
-          pkill -f "nginx"
-        fi
-        if [ #{PORTS[:apache]} -gt 0 ]; then
-          pkill -f "httpd"
-        fi
+        local services=("php-fpm" "mysqld" "redis-server" "memcached" "nginx" "httpd")
+
+        for service in "${services[@]}"; do
+          local port=${PORTS[${service//-/_}]}
+          if [[  $port -gt 0 ]] && lsof -Pi :$port -sTCP:LISTEN -t > /dev/null; then
+            echo "Stopping $service on port $port..."
+            pkill -f "$service"
+          fi
+        done
       }
 
       case "$1" in
@@ -283,7 +254,7 @@ class Brewworks < Formula
           stop_services
           ;;
         *)
-          echo "Usage: #{PROJECT_NAME} {env|start|stop}"
+          echo "Usage: {source} #{PROJECT_NAME} {env|start|stop}"
           echo "Commands:"
           echo "  source #{PROJECT_NAME} env  - Set the environment variables for the project."
           echo "  #{PROJECT_NAME} start       - Start the project services."
@@ -297,9 +268,27 @@ class Brewworks < Formula
     chmod "+x", project_dir/"scripts/manage_services.sh"
 
     bin.install_symlink project_dir/"scripts/manage_services.sh" => PROJECT_NAME
+
+    # ユーザーを取得
+    user = ENV["USER"]
+    # データディレクトリの初期化
+    if "#{MYSQL_VERSION}" == "5.7"
+      # MySQL 5.7用の初期化
+      system "/opt/homebrew/opt/mysql@5.7/bin/mysql_install_db", "--user=#{user}",
+             "--basedir=/opt/homebrew/opt/mysql@5.7",
+             "--datadir=#{project_dir}/mysql",
+             "--tmpdir=/tmp"
+    elsif "#{MYSQL_VERSION}" == "8.0"
+      # MySQL 8.0用の初期化
+      system "/opt/homebrew/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
+    else
+      odie "Unsupported MySQL version: #{MYSQL_VERSION}"
+    end
+
   end
 
   def post_install
+
     PHP_EXTENSIONS.each do |ext|
       unless system("pecl list | grep -q #{ext}")
         system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "install", ext
@@ -310,10 +299,13 @@ class Brewworks < Formula
   end
 
   def caveats; <<~EOS
+    Your BrewWorks directory successfully made in:
+      #{prefix}/#{PROJECT_NAME}
+
     To manage the services, run:
-      #{PROJECT_NAME} env
-      #{PROJECT_NAME} start
-      #{PROJECT_NAME} stop
+      source #{PROJECT_NAME} env  - Set the environment variables for the project.
+      #{PROJECT_NAME} start       - Start the project services.
+      #{PROJECT_NAME} stop        - Stop the project services.
 
     Configuration files are located in:
       #{prefix}/#{PROJECT_NAME}/config/
@@ -324,30 +316,23 @@ class Brewworks < Formula
 
     Web document Root is located in:
       #{prefix}/#{PROJECT_NAME}/public
-EOS
+
+    Create symlink to Web document root from your project:
+      ln -fs /full_path_to_your/public #{prefix}/#{PROJECT_NAME}/public
+  EOS
+  end
+
+  def test_service(port, command)
+    system("lsof -Pi :#{port} -sTCP:LISTEN -t > /dev/null && #{command}")
   end
 
   test do
-    if PORTS[:php] > 0
-      system "#{bin}/php", "-v"
-    end
-    if PORTS[:mysql] > 0
-      system "#{bin}/mysql", "--version"
-    end
-    if PORTS[:redis] > 0
-      system "#{bin}/redis-server", "--version"
-    end
-    if PORTS[:memcached] > 0
-      system "#{bin}/memcached", "-h"
-    end
-    if PORTS[:nginx] > 0
-      system "#{bin}/nginx", "-v"
-    end
-    if PORTS[:httpd] > 0
-      system "#{bin}/httpd", "-v"
-    end
-    if PORTS[:node] > 0
-      system "#{bin}/node", "--version"
-    end
+    test_service(PORTS[:php], "#{bin}/php -v")
+    test_service(PORTS[:mysql], "#{bin}/mysql --version")
+    test_service(PORTS[:redis], "#{bin}/redis-server --version")
+    test_service(PORTS[:memcached], "#{bin}/memcached -h")
+    test_service(PORTS[:nginx], "#{bin}/nginx -v")
+    test_service(PORTS[:apache], "#{bin}/httpd -v")
+    test_service(PORTS[:node], "#{bin}/node --version")
   end
 end
