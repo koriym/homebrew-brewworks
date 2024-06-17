@@ -43,7 +43,6 @@ class Brewworks < Formula
     (project_dir/"config").mkpath
     (project_dir/"scripts").mkpath
     public_dir.mkpath
-    Dir.mkdir(log_dir,  0644)
 
     # ダミーファイルをpublicフォルダに配置
     (public_dir/"index.html").write <<~EOS
@@ -54,6 +53,9 @@ class Brewworks < Formula
           <pre>ln -fs /full_path/to/your_project/public #{public_dir}</pre>
         </body>
       </html>
+    EOS
+
+    (project_dir/"logs/.gitkeep").write <<~EOS
     EOS
 
     (project_dir/"config/php-fpm.conf").write <<~EOS
@@ -298,11 +300,9 @@ class Brewworks < Formula
     else
       odie "Unsupported MySQL version: #{MYSQL_VERSION}"
     end
-
   end
 
   def post_install
-
     PHP_EXTENSIONS.each do |ext|
       unless system("pecl list | grep -q #{ext}")
         system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "install", ext
