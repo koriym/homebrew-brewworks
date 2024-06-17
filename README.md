@@ -40,7 +40,7 @@ PORTS = {
   redis: 6379,
   memcached: 11211,
   nginx: 8080,
-  apache: 0 # no install
+  httpd: 0 # no install
 }
 PHP_EXTENSIONS = ["xdebug", "pcov"]
 ```
@@ -56,7 +56,7 @@ brew install ./brewworks.rb
 ```shell
 $ myapp
 
-Usage: myapp {env|start|stop}
+Usage: {source} myapp {env|start|stop}
 Commands:
   source myproject env  - Set the environment variables for the project.
   myproject start       - Start the project services.

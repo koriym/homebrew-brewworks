@@ -26,7 +26,7 @@ class Brewworks < Formula
     redis: 6379,
     memcached: 11211,
     nginx: 8080,
-    apache: 8081
+    httpd: 8081
   }
   PHP_EXTENSIONS = ["xdebug", "pcov"]
   ########################################################
@@ -132,7 +132,7 @@ class Brewworks < Formula
     EOS
 
     (project_dir/"config/httpd.conf").write <<~EOS
-      Listen #{PORTS[:apache]}
+      Listen #{PORTS[:httpd]}
       DocumentRoot "#{public_dir}"
       <Directory "#{public_dir}">
         Options Indexes FollowSymLinks
@@ -230,7 +230,7 @@ class Brewworks < Formula
         manage_service "Starting" "redis-server" #{PORTS[:redis]} "redis-server" "#{project_dir}/config/redis.conf" ""
         manage_service "Starting" "memcached" #{PORTS[:memcached]} "memcached" "-d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached_#{PORTS[:memcached]}.pid" ""
         manage_service "Starting" "nginx" #{PORTS[:nginx]} "nginx" "-c #{project_dir}/config/nginx_main.conf" ""
-        manage_service "Starting" "httpd" #{PORTS[:apache]} "httpd" "-f #{project_dir}/config/httpd.conf" ""
+        manage_service "Starting" "httpd" #{PORTS[:httpd]} "httpd" "-f #{project_dir}/config/httpd.conf" ""
 
         echo "Services started with these settings:"
         echo "#{project_dir}/config/php-fpm.conf"
@@ -239,7 +239,7 @@ class Brewworks < Formula
         [ #{PORTS[:redis]} -gt 0 ] && echo "#{project_dir}/config/redis.conf"
         [ #{PORTS[:memcached]} -gt 0 ] && echo "#{project_dir}/config/memcached.conf"
         [ #{PORTS[:nginx]} -gt 0 ] && echo "#{project_dir}/config/nginx.conf"
-        [ #{PORTS[:apache]} -gt 0 ] && echo "#{project_dir}/config/httpd.conf"
+        [ #{PORTS[:httpd]} -gt 0 ] && echo "#{project_dir}/config/httpd.conf"
         echo "The web document root: #{public_dir}"
       }
 
@@ -346,7 +346,7 @@ class Brewworks < Formula
     test_service(PORTS[:redis], "#{bin}/redis-server --version")
     test_service(PORTS[:memcached], "#{bin}/memcached -h")
     test_service(PORTS[:nginx], "#{bin}/nginx -v")
-    test_service(PORTS[:apache], "#{bin}/httpd -v")
+    test_service(PORTS[:httpd], "#{bin}/httpd -v")
     test_service(PORTS[:node], "#{bin}/node --version")
   end
 end
