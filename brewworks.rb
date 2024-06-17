@@ -196,15 +196,24 @@ class Brewworks < Formula
         local cmd=$4
         local conf=$5
         local pid_file=$6
-
+      
         if [ $port -gt 0 ]; then
           if lsof -Pi :$port -sTCP:LISTEN -t > /dev/null; then
-            echo "$name is already running on port $port"
+            if [ "$action" == "Starting" ]; then
+              echo "$name is already running on port $port"
+            elif [ "$action" == "Stopping" ]; then
+              echo "$action $name running on port $port..."
+              $cmd $conf
+            fi
           else
-            echo "$action $name with custom config on port $port..."
-            $cmd $conf &
-            if [ -n "$pid_file" ]; then
-              echo $! > $pid_file
+            if [ "$action" == "Starting" ]; then
+              echo "$action $name with custom config on port $port..."
+              $cmd $conf &
+              if [ -n "$pid_file" ]; then
+                echo $! > $pid_file
+              fi
+            elif [ "$action" == "Stopping" ]; then
+              echo "$name service already stopped on port $port"
             fi
           fi
         fi
@@ -232,16 +241,20 @@ class Brewworks < Formula
       }
 
       function stop_services() {
-        local services=("php-fpm" "mysqld" "redis-server" "memcached" "nginx" "httpd")
+        # php-fpm has no known 'graceful' shutdown, use pkill
+        manage_service "Stopping" "php-fpm" #{PORTS[:php-fpm]} "pkill" "-f php-fpm" ""
+        # Use mysqladmin for mysql shutdown
+        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file==#{project_dir}/config/my.cnf -uroot shutdown" ""
+        # Use redis-cli for redis-server shutdown
+        manage_service "Stopping" "redis-server" #{PORTS[:redis-server]} "/opt/homebrew/bin/redis-cli" "shutdown" ""
+        # memcached has no known 'graceful' shutdown, use pkill
+        manage_service "Stopping" "memcached" #{PORTS[:memcached]} "pkill" "-f memcached" ""
+        # nginx uses the -s stop command for a fast shutdown
+        manage_service "Stopping" "nginx" #{PORTS[:nginx]} "/opt/homebrew/bin/nginx" "-s stop" ""
+        # Apache can be stopped using apachectl
+        manage_service "Stopping" "httpd" #{PORTS[:httpd]} " /opt/homebrew/bin/apachectl" "-k stop" ""
+    }
 
-        for service in "${services[@]}"; do
-          local port=${PORTS[${service//-/_}]}
-          if [[  $port -gt 0 ]] && lsof -Pi :$port -sTCP:LISTEN -t > /dev/null; then
-            echo "Stopping $service on port $port..."
-            pkill -f "$service"
-          fi
-        done
-      }
 
       case "$1" in
         env)
