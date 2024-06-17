@@ -4,7 +4,7 @@ BrewWorks is a powerful Homebrew formula that allows you to easily set up projec
 
 ## Features
 
-- Install all necessary services for a project in one go, similar to Docker. 
+- Install all necessary services for a project in one go, similar to Docker.
 - Generate custom commands for each project, allowing simple management of the development environment (e.g., `brewworks start`, `. brewworks env`).
 - Create a dedicated custom folder for each project to centralize service port numbers, configuration files, and log directories.
 - Utilize native Mac services for improved performance compared to Docker.
@@ -23,29 +23,29 @@ wget https://raw.githubusercontent.com/koriym/homebrew-brewworks/1.x/brewworks.r
 3. Modify the settings in `brewworks.rb` according to your project's requirements:
 
 ```ruby
-  # Change the following settings
-  PROJECT_NAME = "brewworks"
-  PHP_VERSION = "8.3"
-  MYSQL_VERSION = "8.0"
-  DEPENDENCIES = [
-    "php@#{PHP_VERSION}",
-    "mysql@#{MYSQL_VERSION}",
-    "redis",
-    "memcached",
-    "nginx",
-    "httpd",
-    "composer",
-    "node"
-  ]
-  PORTS = {
-    php: 9000,
-    mysql: 3306,
-    redis: 6379,
-    memcached: 11211,
-    nginx: 8080,
-    httpd: 8081
-  }
-  PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
+    PROJECT_NAME = "brewworks"
+    PHP_VERSION = "8.3"
+    MYSQL_VERSION = "8.0"
+    DEPENDENCIES = [
+      "php@#{PHP_VERSION}",
+      "mysql@#{MYSQL_VERSION}",
+      "redis",
+      "memcached",
+      "nginx",
+      "httpd",
+      "composer",
+      "node"
+    ]
+    # The port number for services that do not start is set to zero.
+    PORTS = {
+      php: 9000,
+      mysql: 3306,
+      redis: 6379,
+      memcached: 11211,
+      nginx: 8080,
+      httpd: 8081
+    }
+    PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
 ```
 
 3. Rename the file and the class within the file `brewworks.rb` to reflect the PROJECT_NAME you specified. For example, if you set `PROJECT_NAME` to "`myapp`", you should rename the file to `myapp.rb`, and adjust the class name inside the file to `Myapp`.
