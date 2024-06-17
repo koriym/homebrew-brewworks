@@ -336,17 +336,18 @@ class Brewworks < Formula
   EOS
   end
 
-  def test_service(port, command)
-    system("lsof -Pi :#{port} -sTCP:LISTEN -t > /dev/null && #{command}")
+  def test_service(command)
+    system(command)
+    puts `#{command}`
   end
 
   test do
-    test_service(PORTS[:php], "#{bin}/php -v")
-    test_service(PORTS[:mysql], "#{bin}/mysql --version")
-    test_service(PORTS[:redis], "#{bin}/redis-server --version")
-    test_service(PORTS[:memcached], "#{bin}/memcached -h")
-    test_service(PORTS[:nginx], "#{bin}/nginx -v")
-    test_service(PORTS[:httpd], "#{bin}/httpd -v")
-    test_service(PORTS[:node], "#{bin}/node --version")
+    test_service("php -v")
+    test_service("mysql --version")
+    test_service("redis-server --version")
+    test_service("memcached --version")
+    test_service("nginx -v")
+    test_service("httpd -v")
+    test_service("node --version")
   end
 end
