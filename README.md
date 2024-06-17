@@ -43,13 +43,15 @@ For a detailed exploration of this approach, its design philosophy, and how it c
   PHP_EXTENSIONS = ["xdebug", "pcov"]
 ```
 
-3. Install BrewWorks:
+3. Change the file name as well as the class name in brewworks.rb to match the PROJECT_NAME you have set. For example, if you set the PROJECT_NAME as "myapp", the file name will be myapp.rb, and the class name inside will be Myapp.
+
+4. Lastly, install BrewWorks with the new file name:
 
 ```
-brew install ./brewworks.rb
+brew install --build-from-source ./myapp.rb 
 ```
 
-The required services and project-specific commands are generated based on the specification. The name specified in `PROJECT_NAME` becomes the command name.
+Try these steps and see if it successfully meets your project's requirements. Let me know if you encounter any problems.
 
 ### Managing services
 
