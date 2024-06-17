@@ -43,7 +43,7 @@ class Brewworks < Formula
     (project_dir/"config").mkpath
     (project_dir/"scripts").mkpath
     public_dir.mkpath
-    Dir.mkdir(log_dir,  0750)
+    Dir.mkdir(log_dir,  0644)
 
     # ダミーファイルをpublicフォルダに配置
     (public_dir/"index.html").write <<~EOS
@@ -245,7 +245,7 @@ class Brewworks < Formula
         # php-fpm has no known 'graceful' shutdown, use pkill
         manage_service "Stopping" "php-fpm" #{PORTS[:php]} "pkill" "-f php-fpm" ""
         # Use mysqladmin for mysql shutdown
-        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file==#{project_dir}/config/my.cnf -uroot shutdown" ""
+        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file=#{project_dir}/config/my.cnf -uroot shutdown" ""
         # Use redis-cli for redis-server shutdown
         manage_service "Stopping" "redis-server" #{PORTS[:redis]} "/opt/homebrew/bin/redis-cli" "shutdown" ""
         # memcached has no known 'graceful' shutdown, use pkill
