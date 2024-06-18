@@ -4,6 +4,7 @@ class Brewworks < Formula
   url "file:///dev/null"
   version "1.0.0"
 
+  # -- Begin Configuration Section --
   PROJECT_NAME = "brewworks"
   PHP_VERSION = "8.3"
   MYSQL_VERSION = "8.0"
@@ -26,8 +27,10 @@ class Brewworks < Formula
     httpd: [8082]
   }
   PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
+  # -- End Configuration Section --
 
   DEPENDENCIES.each { |dep| depends_on dep }
+
 
   def install
     project_dir = Pathname.new(prefix)/PROJECT_NAME
