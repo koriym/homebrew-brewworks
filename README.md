@@ -121,6 +121,15 @@ This formula is a powerful tool that allows you to quickly set up optimized deve
 
 The custom commands and dedicated folders generated for each project simplify the management of development environments, making it intuitive and straightforward. Onboarding new development environments and switching between projects becomes seamless, and sharing a unified development environment within a team is effortless.
 
+## Uninstall
+
+Uninstallation is also easy: the brew `uninstall` command will erase all unique files, including database folders. This also means that you can reset the environment at any time with the `reinstall` command. The database is also initialised.
+
+```shell
+myapp stop
+brew uninstall ./myapp.rb 
+```
+
 ## Why BrewWorks?
 
 BrewWorks is an excellent alternative to Docker on Mac, enhancing development efficiency with its customizable, user-friendly interface. Unlike Docker, which relies on virtualization to run Linux containers on Mac, BrewWorks leverages native Mac services for better performance.
