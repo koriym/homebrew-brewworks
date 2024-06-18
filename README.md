@@ -82,10 +82,9 @@ This command will start all the services defined in your configuration file.
 
 ```shell
 . brewworks env
-```
+````
 
-This command will set up the necessary environment variables for your project.
-
+This environment variable setting causes `php` and `mysql` to point to the specified version of the binary. The `mysql` client contains project-specific `my.conf` settings so you don't have to specify a port number or user name for every connection. A `mysql` command with no arguments will connect to the project-specific database.
 
 ## Project Structure
 
