@@ -7,16 +7,15 @@ BrewWorks, a robust Homebrew formula, revolutionizes the way developers manage t
 
 To establish a direct connection between your project and the BrewWorks environment, follow these steps:
 
-1. Copy the BrewWorks-generated directory (e.g., `myapp`) to your project's root directory, renaming it to `.brewworks`:
+1. Move the BrewWorks-generated directory (e.g., `myapp`) to your project's root directory, renaming it to `.brewworks`:
 
 ```shell
-cp -R /opt/homebrew/opt/myapp/myapp /path/to/your/project/.brewworks
+mv $(brew --prefix)/opt/myapp/myapp ./.brewworks
 ```
-2. Create symlinks from the original BrewWorks directory to your project's `.brewworks` directory:
+2. Create symlinks from your project's `.brewworks` directory to the original BrewWorks directory.
 
 ```shell
-ln -s /path/to/your/project/.brewworks/config /opt/homebrew/opt/myapp/myapp/config
-ln -s /path/to/your/project/.brewworks/logs  /opt/homebrew/opt/myapp/myapp/logs
+ ln -s ./.brewworks $(brew --prefix)/opt/myapp/myapp
 ```
 
 By integrating the BrewWorks-generated directory with your project under a consistent .brewworks directory, you can easily manage your project-specific configuration files and logs within your project's repository. This approach enables version control, facilitates collaboration, and keeps your development environment closely tied to your project.
