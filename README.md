@@ -36,15 +36,15 @@ wget https://raw.githubusercontent.com/koriym/homebrew-brewworks/1.x/brewworks.r
       "composer",
       "node"
     ]
-    # The port number for services that do not start is set to zero.
     PORTS = {
-      php: 9000,
-      mysql: 3306,
-      redis: 6379,
-      memcached: 11211,
-      nginx: 8080,
-      httpd: 8081
+      php: [9000],
+      mysql: [3306, 3307],
+      redis: [6379],
+      memcached: [11211],
+      nginx: [8080],
+      httpd: [8081]
     }
+    # The port number for services that do not start is set to zero.
     PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
 ```
 
