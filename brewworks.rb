@@ -47,11 +47,17 @@ class Brewworks < Formula
 
   def install
     project_dir = Pathname.new(prefix)/PROJECT_NAME
+    script_dir = Pathname.new(prefix)/"script"
     public_dir = project_dir/"public"
     log_dir = project_dir/"logs"
+    tmp_dir = project_dir/"tmp"
+    config_dir = project_dir/"config"
     php_lib_path = "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/lib/httpd/modules/libphp.so"
+    mysql_socket = "#{tmp_dir}/mysql_#{PORTS[:mysql]}.sock"
 
-    [project_dir/"config", project_dir/"scripts", public_dir].each(&:mkpath)
+    [public_dir,config_dir, script_dir, tmp_dir, log_dir].each(&:mkpath)
+    (tmp_dir/".gitkeep").write("")
+    (log_dir/".gitkeep").write("")
 
     (public_dir/"index.html").write <<~HTML
       <html>
@@ -63,19 +69,17 @@ class Brewworks < Formula
       </html>
     HTML
 
-    (log_dir/".gitkeep").write ""
+    write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, mysql_socket, config_dir)
+    write_env_script(script_dir, config_dir)
+    write_manage_services_script(script_dir, public_dir, config_dir)
 
-    write_config_files(project_dir, log_dir, php_lib_path, public_dir)
-    write_env_script(project_dir)
-    write_manage_services_script(project_dir, public_dir)
-
-    bin.install_symlink project_dir/"scripts/manage_services.sh" => PROJECT_NAME
+    bin.install_symlink script_dir/"manage_services.sh" => PROJECT_NAME
 
     system "#{HOMEBREW_PREFIX}/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
   end
 
-  def write_config_files(project_dir, log_dir, php_lib_path, public_dir)
-    (project_dir/"config/php-fpm.conf").write <<~CONF
+  def write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, mysql_socket, config_dir)
+    (config_dir/"php-fpm.conf").write <<~CONF
       [global]
       daemonize = no
       error_log = #{log_dir}/php-fpm.log
@@ -91,12 +95,23 @@ class Brewworks < Formula
       slowlog = #{log_dir}/php-fpm-slow.log
     CONF
 
-    (project_dir/"config/php.ini").write PHP_EXTENSIONS.map { |ext| "extension=#{ext}.so" }.join("\n")
+    extension_dir = `php-config --extension-dir`.chomp
+    (config_dir/"php.ini").write <<~EOS
+      memory_limit = 2048M
+      error_log = #{log_dir}/php-error.log
+      extension_dir=#{extension_dir}
+      sys_temp_dir=#{tmp_dir}
+      upload_tmp_dir=#{tmp_dir}
+      mysqli.default_socket=#{mysql_socket}
+      pdo_mysql.default_socket=#{mysql_socket}
+      xdebug.output_dir=#{tmp_dir}
+      #{PHP_EXTENSIONS.map { |ext| "extension=#{ext}.so" }.join("\n")}
+    EOS
 
-    (project_dir/"config/my.cnf").write <<~CONF
+    (config_dir/"my.cnf").write <<~CONF
       [mysqld]
       port=#{PORTS[:mysql]}
-      socket="/tmp/mysql_#{PORTS[:mysql]}.sock"
+      socket=#{mysql_socket}
       log-error=#{log_dir}/mysql-error.log
       general_log_file=#{log_dir}/mysql-general.log
       slow_query_log_file=#{log_dir}/mysql-slow.log
@@ -106,13 +121,13 @@ class Brewworks < Formula
       [client]
       user=root
       port=#{PORTS[:mysql]}
-      socket="/tmp/mysql_#{PORTS[:mysql]}.sock"
+      socket=#{mysql_socket}
     CONF
 
-    write_redis_config(project_dir, log_dir) if PORTS[:redis] > 0
-    write_memcached_config(project_dir, log_dir) if PORTS[:memcached] > 0
+    write_redis_config(config_dir, log_dir) if PORTS[:redis] > 0
+    write_memcached_config(config_dir, log_dir) if PORTS[:memcached] > 0
 
-    (project_dir/"config/nginx.conf").write <<~CONF
+    (config_dir/"nginx.conf").write <<~CONF
       server {
         listen #{PORTS[:nginx]};
         server_name localhost;
@@ -135,7 +150,7 @@ class Brewworks < Formula
       }
     CONF
 
-    (project_dir/"config/httpd.conf").write <<~CONF
+    (config_dir/"httpd.conf").write <<~CONF
       Listen #{PORTS[:httpd]}
       DocumentRoot "#{public_dir}"
       <Directory "#{public_dir}">
@@ -167,7 +182,7 @@ class Brewworks < Formula
       </IfModule>
     CONF
 
-    (project_dir/"config/nginx_main.conf").write <<~CONF
+    (config_dir/"nginx_main.conf").write <<~CONF
       events {
         worker_connections 1024;
       }
@@ -178,43 +193,43 @@ class Brewworks < Formula
         sendfile        on;
         keepalive_timeout  65;
 
-        include #{project_dir}/config/nginx.conf;
+        include #{config_dir}/nginx.conf;
       }
     CONF
   end
 
-  def write_redis_config(project_dir, log_dir)
-    (project_dir/"config/redis.conf").write <<~CONF
+  def write_redis_config(config_dir, log_dir)
+    (config_dir/"redis.conf").write <<~CONF
       port #{PORTS[:redis]}
       logfile #{log_dir}/redis.log
     CONF
   end
 
-  def write_memcached_config(project_dir, log_dir)
-    (project_dir/"config/memcached.conf").write <<~CONF
+  def write_memcached_config(config_dir, log_dir)
+    (config_dir/"memcached.conf").write <<~CONF
       -p #{PORTS[:memcached]}
       -l 127.0.0.1
       -vv >> #{log_dir}/memcached.log 2>&1
     CONF
   end
 
-  def write_env_script(project_dir)
-    (project_dir/"env.sh").write <<~SCRIPT
+  def write_env_script(script_dir, config_dir)
+    (script_dir/"env.sh").write <<~SCRIPT
       #!/bin/bash
       export PATH="#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin:#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin:#{HOMEBREW_PREFIX}/opt/redis/bin:#{HOMEBREW_PREFIX}/opt/memcached/bin:#{HOMEBREW_PREFIX}/opt/nginx/bin:#{HOMEBREW_PREFIX}/opt/httpd/bin:#{HOMEBREW_PREFIX}/opt/node/bin:$PATH"
-      export PHP_INI_SCAN_DIR="#{project_dir}/config"
-      alias mysql="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{project_dir}/config/my.cnf"
+      export PHP_INI_SCAN_DIR="#{config_dir}"
+      alias mysql="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{config_dir}/my.cnf"
     SCRIPT
 
-    chmod "+x", project_dir/"env.sh"
+    chmod "+x", script_dir/"env.sh"
   end
 
-  def write_manage_services_script(project_dir, public_dir)
-    (project_dir/"scripts/manage_services.sh").write <<~SCRIPT
+  def write_manage_services_script(script_dir, public_dir, config_dir)
+    (script_dir/"manage_services.sh").write <<~SCRIPT
       #!/bin/bash
 
       function set_env() {
-        source "#{project_dir}/env.sh"
+        source "#{script_dir}/env.sh"
       }
 
       function manage_service() {
@@ -250,21 +265,21 @@ class Brewworks < Formula
       function start_services() {
         set_env
 
-        manage_service "Starting" "php-fpm" #{PORTS[:php]} "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/sbin/php-fpm" "-y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini" ""
-        manage_service "Starting" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe" "--defaults-file=#{project_dir}/config/my.cnf" ""
-        manage_service "Starting" "redis-server" #{PORTS[:redis]} "redis-server" "#{project_dir}/config/redis.conf" ""
+        manage_service "Starting" "php-fpm" #{PORTS[:php]} "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/sbin/php-fpm" "-y #{config_dir}/php-fpm.conf -c #{config_dir}/php.ini" ""
+        manage_service "Starting" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe" "--defaults-file=#{config_dir}/my.cnf" ""
+        manage_service "Starting" "redis-server" #{PORTS[:redis]} "redis-server" "#{config_dir}/redis.conf" ""
         manage_service "Starting" "memcached" #{PORTS[:memcached]} "memcached" "-d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached_#{PORTS[:memcached]}.pid" ""
-        manage_service "Starting" "nginx" #{PORTS[:nginx]} "nginx" "-c #{project_dir}/config/nginx_main.conf" ""
-        manage_service "Starting" "httpd" #{PORTS[:httpd]} "httpd" "-f #{project_dir}/config/httpd.conf" ""
+        manage_service "Starting" "nginx" #{PORTS[:nginx]} "nginx" "-c #{config_dir}/nginx_main.conf" ""
+        manage_service "Starting" "httpd" #{PORTS[:httpd]} "httpd" "-f #{config_dir}/httpd.conf" ""
 
         echo "Services started with these settings:"
-        echo "#{project_dir}/config/php-fpm.conf"
-        echo "#{project_dir}/config/php.ini"
-        echo "#{project_dir}/config/my.cnf"
-        [ #{PORTS[:redis]} -gt 0 ] && echo "#{project_dir}/config/redis.conf"
-        [ #{PORTS[:memcached]} -gt 0 ] && echo "#{project_dir}/config/memcached.conf"
-        [ #{PORTS[:nginx]} -gt 0 ] && echo "#{project_dir}/config/nginx.conf"
-        [ #{PORTS[:httpd]} -gt 0 ] && echo "#{project_dir}/config/httpd.conf"
+        echo "#{config_dir}/php-fpm.conf"
+        echo "#{config_dir}/php.ini"
+        echo "#{config_dir}/my.cnf"
+        [ #{PORTS[:redis]} -gt 0 ] && echo "#{config_dir}/redis.conf"
+        [ #{PORTS[:memcached]} -gt 0 ] && echo "#{config_dir}/memcached.conf"
+        [ #{PORTS[:nginx]} -gt 0 ] && echo "#{config_dir}/nginx.conf"
+        [ #{PORTS[:httpd]} -gt 0 ] && echo "#{config_dir}/httpd.conf"
         echo "The web document root: #{public_dir}"
       }
 
@@ -272,7 +287,7 @@ class Brewworks < Formula
         # php-fpm has no known 'graceful' shutdown, use pkill
         manage_service "Stopping" "php-fpm" #{PORTS[:php]} "pkill" "-f php-fpm" ""
         # Use mysqladmin for mysql shutdown
-        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file=#{project_dir}/config/my.cnf -uroot shutdown" ""
+        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file=#{config_dir}/my.cnf -uroot shutdown" ""
         # Use redis-cli for redis-server shutdown
         manage_service "Stopping" "redis-server" #{PORTS[:redis]} "#{HOMEBREW_PREFIX}/bin/redis-cli" "shutdown" ""
         # memcached has no known 'graceful' shutdown, use pkill
@@ -304,13 +319,15 @@ class Brewworks < Formula
       esac
     SCRIPT
 
-    chmod "+x", project_dir/"scripts/manage_services.sh"
+    chmod "+x", script_dir/"manage_services.sh"
   end
 
   def post_install
+    config_dir = Pathname.new(prefix)/PROJECT_NAME/"config"
+    ini_file = config_dir/"php.ini"
     PHP_EXTENSIONS.each do |ext|
       unless system("pecl list | grep -q #{ext}")
-        system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "install", ext
+        system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "-f", ini_file, "install", ext
       else
         puts "#{ext} is already installed."
       end
