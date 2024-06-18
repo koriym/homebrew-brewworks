@@ -4,8 +4,15 @@ class Brewworks < Formula
   url "file:///dev/null"
   version "1.0.0"
 
-  ########################################################
-  # Change the following settings
+  # The project name, class name, and file name are set to "brewworks" by default.
+  # They are used in your command, class names, and file names respectively.
+  #
+  # For example, your command will be "brewworks start", your class name will be "Brewworks", and your file will be named as "brewworks.rb".
+  #
+  # You are free to adjust these to match your own project.
+
+  # -- Begin Configuration Section --
+
   PROJECT_NAME = "brewworks"
   PHP_VERSION = "8.3"
   MYSQL_VERSION = "8.0"
@@ -29,7 +36,9 @@ class Brewworks < Formula
     httpd: 8081
   }
   PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
-  ########################################################
+
+  # -- End Configuration Section --
+
   DEPENDENCIES.each do |dep|
     depends_on dep
   end
