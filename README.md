@@ -10,7 +10,7 @@ BrewWorks is a powerful Homebrew formula that allows you to easily set up projec
 - Utilize native Mac services for improved performance compared to Docker.
 - Flexibility to add other services as needed.
 
-For a detailed exploration of this approach, its design philosophy, and how it compares to other options, please refer to our [self-review document](docs/self-review).
+For a detailed exploration of this approach, its design philosophy, and how it compares to other options, please refer to our [self-review document](docs/self-review.md).
 
 ## Usage
 
