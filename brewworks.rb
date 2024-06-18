@@ -204,6 +204,7 @@ class Brewworks < Formula
     (script_dir/"env.sh").write <<~SCRIPT
       #!/bin/bash
       export PATH="#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin:
+      export PATH="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin:
       #{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin:
       #{HOMEBREW_PREFIX}/opt/redis/bin:
       #{HOMEBREW_PREFIX}/opt/memcached/bin:
@@ -211,7 +212,6 @@ class Brewworks < Formula
       #{HOMEBREW_PREFIX}/opt/httpd/bin:
       #{HOMEBREW_PREFIX}/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{config_dir}"
-      alias mysql="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql"
     SCRIPT
 
     chmod "+x", script_dir/"env.sh"
