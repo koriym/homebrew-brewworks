@@ -34,7 +34,7 @@ class Brewworks < Formula
     project_dir = Pathname.new(prefix)/PROJECT_NAME
     public_dir = project_dir/"public"
     log_dir = project_dir/"logs"
-    php_lib_path = "/opt/homebrew/opt/php@#{PHP_VERSION}/lib/httpd/modules/libphp.so"
+    php_lib_path = "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/lib/httpd/modules/libphp.so"
 
     [project_dir/"config", project_dir/"scripts", public_dir].each(&:mkpath)
 
@@ -56,7 +56,7 @@ class Brewworks < Formula
 
     bin.install_symlink project_dir/"scripts/manage_services.sh" => PROJECT_NAME
 
-    system "/opt/homebrew/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
+    system "#{HOMEBREW_PREFIX}/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
   end
 
   def write_config_files(project_dir, log_dir, php_lib_path, public_dir)
@@ -185,9 +185,9 @@ class Brewworks < Formula
   def write_env_script(project_dir)
     (project_dir/"env.sh").write <<~SCRIPT
       #!/bin/bash
-      export PATH="/opt/homebrew/opt/php@#{PHP_VERSION}/bin:/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin:/opt/homebrew/opt/redis/bin:/opt/homebrew/opt/memcached/bin:/opt/homebrew/opt/nginx/bin:/opt/homebrew/opt/httpd/bin:/opt/homebrew/opt/node/bin:$PATH"
+      export PATH="#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin:#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin:#{HOMEBREW_PREFIX}/opt/redis/bin:#{HOMEBREW_PREFIX}/opt/memcached/bin:#{HOMEBREW_PREFIX}/opt/nginx/bin:#{HOMEBREW_PREFIX}/opt/httpd/bin:#{HOMEBREW_PREFIX}/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{project_dir}/config"
-      alias mysql="/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{project_dir}/config/my.cnf"
+      alias mysql="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{project_dir}/config/my.cnf"
     SCRIPT
 
     chmod "+x", project_dir/"env.sh"
@@ -234,8 +234,8 @@ class Brewworks < Formula
       function start_services() {
         set_env
 
-        manage_service "Starting" "php-fpm" #{PORTS[:php]} "/opt/homebrew/opt/php@#{PHP_VERSION}/sbin/php-fpm" "-y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini" ""
-        manage_service "Starting" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe" "--defaults-file=#{project_dir}/config/my.cnf" ""
+        manage_service "Starting" "php-fpm" #{PORTS[:php]} "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/sbin/php-fpm" "-y #{project_dir}/config/php-fpm.conf -c #{project_dir}/config/php.ini" ""
+        manage_service "Starting" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe" "--defaults-file=#{project_dir}/config/my.cnf" ""
         manage_service "Starting" "redis-server" #{PORTS[:redis]} "redis-server" "#{project_dir}/config/redis.conf" ""
         manage_service "Starting" "memcached" #{PORTS[:memcached]} "memcached" "-d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached_#{PORTS[:memcached]}.pid" ""
         manage_service "Starting" "nginx" #{PORTS[:nginx]} "nginx" "-c #{project_dir}/config/nginx_main.conf" ""
@@ -256,15 +256,15 @@ class Brewworks < Formula
         # php-fpm has no known 'graceful' shutdown, use pkill
         manage_service "Stopping" "php-fpm" #{PORTS[:php]} "pkill" "-f php-fpm" ""
         # Use mysqladmin for mysql shutdown
-        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "/opt/homebrew/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file=#{project_dir}/config/my.cnf -uroot shutdown" ""
+        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file=#{project_dir}/config/my.cnf -uroot shutdown" ""
         # Use redis-cli for redis-server shutdown
-        manage_service "Stopping" "redis-server" #{PORTS[:redis]} "/opt/homebrew/bin/redis-cli" "shutdown" ""
+        manage_service "Stopping" "redis-server" #{PORTS[:redis]} "#{HOMEBREW_PREFIX}/bin/redis-cli" "shutdown" ""
         # memcached has no known 'graceful' shutdown, use pkill
         manage_service "Stopping" "memcached" #{PORTS[:memcached]} "pkill" "-f memcached" ""
         # nginx uses the -s stop command for a fast shutdown
-        manage_service "Stopping" "nginx" #{PORTS[:nginx]} "/opt/homebrew/bin/nginx" "-s stop" ""
+        manage_service "Stopping" "nginx" #{PORTS[:nginx]} "#{HOMEBREW_PREFIX}/bin/nginx" "-s stop" ""
         # Apache can be stopped using apachectl
-        manage_service "Stopping" "httpd" #{PORTS[:httpd]} "/opt/homebrew/bin/apachectl" "-k stop" ""
+        manage_service "Stopping" "httpd" #{PORTS[:httpd]} "#{HOMEBREW_PREFIX}/bin/apachectl" "-k stop" ""
       }
 
       case "$1" in
