@@ -104,6 +104,7 @@ class Brewworks < Formula
       pid-file="#{project_dir}/mysql/mysqld.pid"
 
       [client]
+      user=root
       port=#{PORTS[:mysql]}
       socket="/tmp/mysql_#{PORTS[:mysql]}.sock"
     CONF
