@@ -4,20 +4,6 @@ class Brewworks < Formula
   url "file:///dev/null"
   version "1.0.0"
 
-  # Configuration Section
-  # ---------------------
-  # The project name, class name, and file name are set to "brewworks" by default.
-  # They are used in your class names, file names, and commands respectively.
-  #
-  # For example:
-  # - Class name: "Brewworks"
-  # - File name:  "brewworks.rb"
-  # - Command:    "brewworks {start|stop|env}"
-  #
-  # You can adjust these to match your own project.
-
-  # -- Begin Configuration Section --
-
   PROJECT_NAME = "brewworks"
   PHP_VERSION = "8.3"
   MYSQL_VERSION = "8.0"
@@ -32,16 +18,14 @@ class Brewworks < Formula
     "node"
   ]
   PORTS = {
-    php: 9000,
-    mysql: 3306,
-    redis: 6379,
-    memcached: 11211,
-    nginx: 8080,
-    httpd: 8081
+    php: [9000],
+    mysql: [3306, 3307],
+    redis: [6379, 6380],
+    memcached: [11211, 11212],
+    nginx: [8080],
+    httpd: [8082]
   }
   PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
-
-  # -- End Configuration Section --
 
   DEPENDENCIES.each { |dep| depends_on dep }
 
@@ -53,9 +37,8 @@ class Brewworks < Formula
     tmp_dir = project_dir/"tmp"
     config_dir = project_dir/"config"
     php_lib_path = "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/lib/httpd/modules/libphp.so"
-    mysql_socket = "#{tmp_dir}/mysql_#{PORTS[:mysql]}.sock"
 
-    [public_dir,config_dir, script_dir, tmp_dir, log_dir].each(&:mkpath)
+    [public_dir, config_dir, script_dir, tmp_dir, log_dir].each(&:mkpath)
     (tmp_dir/".gitkeep").write("")
     (log_dir/".gitkeep").write("")
 
@@ -69,31 +52,35 @@ class Brewworks < Formula
       </html>
     HTML
 
-    write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, mysql_socket, config_dir)
+    write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, config_dir)
     write_env_script(script_dir, config_dir)
     write_manage_services_script(script_dir, public_dir, config_dir)
 
     bin.install_symlink script_dir/"manage_services.sh" => PROJECT_NAME
 
-    system "#{HOMEBREW_PREFIX}/opt/mysql@8.0/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql"
+    PORTS[:mysql].each_with_index do |port, index|
+      system "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql_#{index}"
+    end
   end
 
-  def write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, mysql_socket, config_dir)
-    (config_dir/"php-fpm.conf").write <<~CONF
-      [global]
-      daemonize = no
-      error_log = #{log_dir}/php-fpm.log
+  def write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, config_dir)
+    PORTS[:php].each_with_index do |port, index|
+      (config_dir/"php-fpm_#{port}.conf").write <<~CONF
+        [global]
+        daemonize = no
+        error_log = #{log_dir}/php-fpm_#{port}.log
 
-      [www]
-      listen = 127.0.0.1:#{PORTS[:php]}
-      pm = dynamic
-      pm.max_children = 10
-      pm.start_servers = 3
-      pm.min_spare_servers = 2
-      pm.max_spare_servers = 4
-      access.log = #{log_dir}/php-fpm-access.log
-      slowlog = #{log_dir}/php-fpm-slow.log
-    CONF
+        [www]
+        listen = 127.0.0.1:#{port}
+        pm = dynamic
+        pm.max_children = 10
+        pm.start_servers = 3
+        pm.min_spare_servers = 2
+        pm.max_spare_servers = 4
+        access.log = #{log_dir}/php-fpm-access_#{port}.log
+        slowlog = #{log_dir}/php-fpm-slow_#{port}.log
+      CONF
+    end
 
     extension_dir = `php-config --extension-dir`.chomp
     (config_dir/"php.ini").write <<~EOS
@@ -102,85 +89,100 @@ class Brewworks < Formula
       extension_dir=#{extension_dir}
       sys_temp_dir=#{tmp_dir}
       upload_tmp_dir=#{tmp_dir}
-      mysqli.default_socket=#{mysql_socket}
-      pdo_mysql.default_socket=#{mysql_socket}
       xdebug.output_dir=#{tmp_dir}
       #{PHP_EXTENSIONS.map { |ext| "extension=#{ext}.so" }.join("\n")}
     EOS
 
-    (config_dir/"my.cnf").write <<~CONF
-      [mysqld]
-      port=#{PORTS[:mysql]}
-      socket=#{mysql_socket}
-      log-error=#{log_dir}/mysql-error.log
-      general_log_file=#{log_dir}/mysql-general.log
-      slow_query_log_file=#{log_dir}/mysql-slow.log
-      datadir="#{project_dir}/mysql"
-      pid-file="#{project_dir}/mysql/mysqld.pid"
+    PORTS[:mysql].each_with_index do |port, index|
+      (config_dir/"my_#{port}.cnf").write <<~CONF
+        [mysqld]
+        port=#{port}
+        socket=#{tmp_dir}/mysql_#{port}.sock
+        log-error=#{log_dir}/mysql_#{port}_error.log
+        general_log_file=#{log_dir}/mysql_#{port}_general.log
+        slow_query_log_file=#{log_dir}/mysql_#{port}_slow.log
+        datadir="#{project_dir}/mysql_#{index}"
+        pid-file="#{project_dir}/mysql_#{index}/mysqld.pid"
 
-      [client]
-      user=root
-      port=#{PORTS[:mysql]}
-      socket=#{mysql_socket}
-    CONF
+        [client]
+        user=root
+        port=#{port}
+        socket=#{tmp_dir}/mysql_#{port}.sock
+      CONF
+    end
 
-    write_redis_config(config_dir, log_dir) if PORTS[:redis] > 0
-    write_memcached_config(config_dir, log_dir) if PORTS[:memcached] > 0
+    PORTS[:redis].each do |port|
+      (config_dir/"redis_#{port}.conf").write <<~CONF
+        port #{port}
+        logfile #{log_dir}/redis_#{port}.log
+      CONF
+    end
 
-    (config_dir/"nginx.conf").write <<~CONF
-      server {
-        listen #{PORTS[:nginx]};
-        server_name localhost;
-        root #{public_dir};
-        index index.php index.html index.htm;
+    PORTS[:memcached].each do |port|
+      (config_dir/"memcached_#{port}.conf").write <<~CONF
+        -p #{port}
+        -l 127.0.0.1
+        -vv >> #{log_dir}/memcached_#{port}.log 2>&1
+      CONF
+    end
 
-        access_log #{log_dir}/nginx-access.log;
-        error_log #{log_dir}/nginx-error.log;
+    PORTS[:nginx].each do |port|
+      (config_dir/"nginx_#{port}.conf").write <<~CONF
+        server {
+          listen #{port};
+          server_name localhost;
+          root #{public_dir};
+          index index.php index.html index.htm;
 
-        location / {
-          try_files $uri $uri/ /index.php?$query_string;
+          access_log #{log_dir}/nginx_#{port}_access.log;
+          error_log #{log_dir}/nginx_#{port}_error.log;
+
+          location / {
+            try_files $uri $uri/ /index.php?$query_string;
+          }
+
+          location ~ \.php$ {
+            include #{HOMEBREW_PREFIX}/etc/nginx/fastcgi_params;
+            fastcgi_pass 127.0.0.1:#{PORTS[:php].first};
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          }
         }
+      CONF
+    end
 
-        location ~ \.php$ {
-          include #{HOMEBREW_PREFIX}/etc/nginx/fastcgi_params;
-          fastcgi_pass 127.0.0.1:#{PORTS[:php]};
-          fastcgi_index index.php;
-          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        }
-      }
-    CONF
+    PORTS[:httpd].each do |port|
+      (config_dir/"httpd_#{port}.conf").write <<~CONF
+        Listen #{port}
+        DocumentRoot "#{public_dir}"
+        <Directory "#{public_dir}">
+          Options Indexes FollowSymLinks
+          AllowOverride All
+          Require all granted
+        </Directory>
+        LoadModule php_module #{php_lib_path}
+        <FilesMatch \.php$>
+          SetHandler application/x-httpd-php
+        </FilesMatch>
 
-    (config_dir/"httpd.conf").write <<~CONF
-      Listen #{PORTS[:httpd]}
-      DocumentRoot "#{public_dir}"
-      <Directory "#{public_dir}">
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-      </Directory>
-      LoadModule php_module #{php_lib_path}
-      <FilesMatch \.php$>
-        SetHandler application/x-httpd-php
-      </FilesMatch>
+        ErrorLog #{log_dir}/httpd_#{port}_error.log
 
-      ErrorLog #{log_dir}/httpd-error.log
-      # CustomLog #{log_dir}/httpd-access.log combined
-
-      LoadModule mpm_prefork_module lib/httpd/modules/mod_mpm_prefork.so
-      LoadModule authz_core_module lib/httpd/modules/mod_authz_core.so
-      LoadModule authz_host_module lib/httpd/modules/mod_authz_host.so
-      LoadModule authz_user_module lib/httpd/modules/mod_authz_user.so
-      LoadModule unixd_module lib/httpd/modules/mod_unixd.so
-      LoadModule dir_module lib/httpd/modules/mod_dir.so
-      
-      ServerName localhost
-      User www
-      Group www
-      
-      <IfModule dir_module>
-          DirectoryIndex index.php index.html
-      </IfModule>
-    CONF
+        LoadModule mpm_prefork_module lib/httpd/modules/mod_mpm_prefork.so
+        LoadModule authz_core_module lib/httpd/modules/mod_authz_core.so
+        LoadModule authz_host_module lib/httpd/modules/mod_authz_host.so
+        LoadModule authz_user_module lib/httpd/modules/mod_authz_user.so
+        LoadModule unixd_module lib/httpd/modules/mod_unixd.so
+        LoadModule dir_module lib/httpd/modules/mod_dir.so
+        
+        ServerName localhost
+        User www
+        Group www
+        
+        <IfModule dir_module>
+            DirectoryIndex index.php index.html
+        </IfModule>
+      CONF
+    end
 
     (config_dir/"nginx_main.conf").write <<~CONF
       events {
@@ -193,23 +195,8 @@ class Brewworks < Formula
         sendfile        on;
         keepalive_timeout  65;
 
-        include #{config_dir}/nginx.conf;
+        include #{config_dir}/nginx_*.conf;
       }
-    CONF
-  end
-
-  def write_redis_config(config_dir, log_dir)
-    (config_dir/"redis.conf").write <<~CONF
-      port #{PORTS[:redis]}
-      logfile #{log_dir}/redis.log
-    CONF
-  end
-
-  def write_memcached_config(config_dir, log_dir)
-    (config_dir/"memcached.conf").write <<~CONF
-      -p #{PORTS[:memcached]}
-      -l 127.0.0.1
-      -vv >> #{log_dir}/memcached.log 2>&1
     CONF
   end
 
@@ -236,6 +223,58 @@ class Brewworks < Formula
 
       function set_env() {
         source "#{script_dir}/env.sh"
+      }
+
+      function start_services() {
+        set_env
+
+        echo "Starting php-fpm services..."
+        #{PORTS[:php].map { |port| "manage_service 'Starting' 'php-fpm' #{port} '#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/sbin/php-fpm' '-y #{config_dir}/php-fpm_#{port}.conf -c #{config_dir}/php.ini' ''" }.join("\n")}
+        
+        echo "Starting mysql services..."
+        #{PORTS[:mysql].map { |port| "manage_service 'Starting' 'mysql' #{port} '#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe' '--defaults-file=#{config_dir}/my_#{port}.cnf' ''" }.join("\n")}
+        
+        echo "Starting redis services..."
+        #{PORTS[:redis].map { |port| "manage_service 'Starting' 'redis-server' #{port} 'redis-server' '#{config_dir}/redis_#{port}.conf' ''" }.join("\n")}
+        
+        echo "Starting memcached services..."
+        #{PORTS[:memcached].map { |port| "manage_service 'Starting' 'memcached' #{port} 'memcached' '-d -m 64 -p #{port} -u memcached -c 1024 -P /tmp/memcached_#{port}.pid' ''" }.join("\n")}
+        
+        echo "Starting nginx services..."
+        #{PORTS[:nginx].map { |port| "manage_service 'Starting' 'nginx' #{port} 'nginx' '-c #{config_dir}/nginx_#{port}.conf' ''" }.join("\n")}
+        
+        echo "Starting httpd services..."
+        #{PORTS[:httpd].map { |port| "manage_service 'Starting' 'httpd' #{port} 'httpd' '-f #{config_dir}/httpd_#{port}.conf' ''" }.join("\n")}
+        
+        echo "Services started with these settings:"
+        #{PORTS[:php].map { |port| "echo '#{config_dir}/php-fpm_#{port}.conf'" }.join("\n")}
+        echo "#{config_dir}/php.ini"
+        #{PORTS[:mysql].map { |port| "echo '#{config_dir}/my_#{port}.cnf'" }.join("\n")}
+        #{PORTS[:redis].map { |port| "echo '#{config_dir}/redis_#{port}.conf'" }.join("\n")}
+        #{PORTS[:memcached].map { |port| "echo '#{config_dir}/memcached_#{port}.conf'" }.join("\n")}
+        #{PORTS[:nginx].map { |port| "echo '#{config_dir}/nginx_#{port}.conf'" }.join("\n")}
+        #{PORTS[:httpd].map { |port| "echo '#{config_dir}/httpd_#{port}.conf'" }.join("\n")}
+        echo "The web document root: #{public_dir}"
+      }
+
+      function stop_services() {
+        echo "Stopping php-fpm services..."
+        #{PORTS[:php].map { |port| "manage_service 'Stopping' 'php-fpm' #{port} 'pkill' '-f php-fpm' ''" }.join("\n")}
+        
+        echo "Stopping mysql services..."
+        #{PORTS[:mysql].map { |port| "manage_service 'Stopping' 'mysql' #{port} '#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin' '--defaults-file=#{config_dir}/my_#{port}.cnf -uroot shutdown' ''" }.join("\n")}
+        
+        echo "Stopping redis services..."
+        #{PORTS[:redis].map { |port| "manage_service 'Stopping' 'redis-server' #{port} '#{HOMEBREW_PREFIX}/bin/redis-cli' 'shutdown' ''" }.join("\n")}
+        
+        echo "Stopping memcached services..."
+        #{PORTS[:memcached].map { |port| "manage_service 'Stopping' 'memcached' #{port} 'pkill' '-f memcached' ''" }.join("\n")}
+        
+        echo "Stopping nginx services..."
+        #{PORTS[:nginx].map { |port| "manage_service 'Stopping' 'nginx' #{port} '#{HOMEBREW_PREFIX}/bin/nginx' '-s stop' ''" }.join("\n")}
+        
+        echo "Stopping httpd services..."
+        #{PORTS[:httpd].map { |port| "manage_service 'Stopping' 'httpd' #{port} '#{HOMEBREW_PREFIX}/bin/apachectl' '-k stop' ''" }.join("\n")}
       }
 
       function manage_service() {
@@ -266,42 +305,6 @@ class Brewworks < Formula
             fi
           fi
         fi
-      }
-
-      function start_services() {
-        set_env
-
-        manage_service "Starting" "php-fpm" #{PORTS[:php]} "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/sbin/php-fpm" "-y #{config_dir}/php-fpm.conf -c #{config_dir}/php.ini" ""
-        manage_service "Starting" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe" "--defaults-file=#{config_dir}/my.cnf" ""
-        manage_service "Starting" "redis-server" #{PORTS[:redis]} "redis-server" "#{config_dir}/redis.conf" ""
-        manage_service "Starting" "memcached" #{PORTS[:memcached]} "memcached" "-d -m 64 -p #{PORTS[:memcached]} -u memcached -c 1024 -P /tmp/memcached_#{PORTS[:memcached]}.pid" ""
-        manage_service "Starting" "nginx" #{PORTS[:nginx]} "nginx" "-c #{config_dir}/nginx_main.conf" ""
-        manage_service "Starting" "httpd" #{PORTS[:httpd]} "httpd" "-f #{config_dir}/httpd.conf" ""
-
-        echo "Services started with these settings:"
-        echo "#{config_dir}/php-fpm.conf"
-        echo "#{config_dir}/php.ini"
-        echo "#{config_dir}/my.cnf"
-        [ #{PORTS[:redis]} -gt 0 ] && echo "#{config_dir}/redis.conf"
-        [ #{PORTS[:memcached]} -gt 0 ] && echo "#{config_dir}/memcached.conf"
-        [ #{PORTS[:nginx]} -gt 0 ] && echo "#{config_dir}/nginx.conf"
-        [ #{PORTS[:httpd]} -gt 0 ] && echo "#{config_dir}/httpd.conf"
-        echo "The web document root: #{public_dir}"
-      }
-
-      function stop_services() {
-        # php-fpm has no known 'graceful' shutdown, use pkill
-        manage_service "Stopping" "php-fpm" #{PORTS[:php]} "pkill" "-f php-fpm" ""
-        # Use mysqladmin for mysql shutdown
-        manage_service "Stopping" "mysql" #{PORTS[:mysql]} "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin" "--defaults-file=#{config_dir}/my.cnf -uroot shutdown" ""
-        # Use redis-cli for redis-server shutdown
-        manage_service "Stopping" "redis-server" #{PORTS[:redis]} "#{HOMEBREW_PREFIX}/bin/redis-cli" "shutdown" ""
-        # memcached has no known 'graceful' shutdown, use pkill
-        manage_service "Stopping" "memcached" #{PORTS[:memcached]} "pkill" "-f memcached" ""
-        # nginx uses the -s stop command for a fast shutdown
-        manage_service "Stopping" "nginx" #{PORTS[:nginx]} "#{HOMEBREW_PREFIX}/bin/nginx" "-s stop" ""
-        # Apache can be stopped using apachectl
-        manage_service "Stopping" "httpd" #{PORTS[:httpd]} "#{HOMEBREW_PREFIX}/bin/apachectl" "-k stop" ""
       }
 
       case "$1" in
