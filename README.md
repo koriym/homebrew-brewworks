@@ -84,7 +84,7 @@ This command will start all the services defined in your configuration file.
 . brewworks env
 ````
 
-This environment variable setting causes `php` and `mysql` to point to the specified version of the binary. In addition to that, an alias `mysql@3306`, the client for each mysql service port, is created. This is useful for quick connections with argument-free commands and is easy to customise as it loads a project-specific my.conf.
+This environment variable setting causes `php` and `mysql` to point to the specified version of the binary. In addition to that, an alias `mysql@3306`, the client for each mysql service port, is created. This is useful for quick connections with argument-free commands and is easy to customize as it loads a project-specific my.conf.
 
 ## Project Structure
 
