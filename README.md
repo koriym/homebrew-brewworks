@@ -30,13 +30,13 @@ brew edit brewworks
 
 If you have made any edits, Reinstall to reflect them.
 
-``shell
+```shell
 brew reinstall brewworks
 ````
 
 Now start the services! All necessary services will be started at once.
 
-``shell
+```shell
 brewworks start
 ```
 
@@ -118,7 +118,7 @@ One of the standout features of BrewWorks is the ability to start all the necess
 . brewworks env
 ````
 
-This environment variable setting causes php and mysql to point to the specified version of the binary. In addition to that, an alias mysql@3306, the client for each mysql service port, is created. This is useful for quick connections with argument-free commands and is easy to customize as it loads a project-specific my.conf.
+This environment variable setting causes php and mysql to point to the specified version of the binary. In addition to that, an alias `mysql@3306`, the client for each mysql service port, is created. This is useful for quick connections with argument-free commands and is easy to customize as it loads a project-specific my.conf.
 
 These simple yet powerful commands, unique to BrewWorks, dramatically simplify the management of your development environment. No more navigating through complex docker-compose files or manually starting and stopping individual services. With BrewWorks, you can control your entire development stack with ease and efficiency.
 
