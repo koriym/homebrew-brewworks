@@ -206,14 +206,16 @@ class Brewworks < Formula
   def write_env_script(script_dir, config_dir)
     (script_dir/"env.sh").write <<~SCRIPT
       #!/bin/bash
-      export PATH="#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin:
-      export PATH="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin: \
-      #{HOMEBREW_PREFIX}/opt/redis/bin: \
-      #{HOMEBREW_PREFIX}/opt/memcached/bin: \
-      #{HOMEBREW_PREFIX}/opt/nginx/bin: \
-      #{HOMEBREW_PREFIX}/opt/httpd/bin:  \
+      export PATH="#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin::$PATH"
+      export PATH="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin:\
+      #{HOMEBREW_PREFIX}/opt/redis/bin:\
+      #{HOMEBREW_PREFIX}/opt/memcached/bin:\
+      #{HOMEBREW_PREFIX}/opt/nginx/bin:\
+      #{HOMEBREW_PREFIX}/opt/httpd/bin:\
       #{HOMEBREW_PREFIX}/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{config_dir}"
+      alias mysql="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql"
+      #{PORTS[:mysql].map { |port| "alias mysql@#{port}=\"#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{config_dir}/my_#{port}.cnf -h 127.0.0.1"}.join("\n")}
     SCRIPT
 
     chmod "+x", script_dir/"env.sh"
