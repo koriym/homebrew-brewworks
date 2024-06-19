@@ -111,6 +111,7 @@ class Brewworks < Formula
         user=root
         port=#{port}
         socket=#{tmp_dir}/mysql_#{port}.sock
+        prompt=mysql@#{port}:\\d>\\_
       CONF
     end
 
