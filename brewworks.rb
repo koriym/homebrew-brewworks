@@ -84,7 +84,7 @@ class Brewworks < Formula
       CONF
     end
 
-    ext_list, extension_dir = get_ext
+    ext_list, extension_dir = get_php_extensions
     (config_dir/"php.ini").write <<~EOS
       memory_limit = 2048M
       error_log = #{log_dir}/php-error.log
@@ -390,7 +390,7 @@ class Brewworks < Formula
 
   private
 
-  def get_ext
+  def get_php_extensions
     extension_dir = `php-config --extension-dir`.chomp
     ext_list = PHP_EXTENSIONS.map { |ext|
       if ext == "xdebug"
