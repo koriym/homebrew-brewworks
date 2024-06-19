@@ -84,15 +84,15 @@ class Brewworks < Formula
       CONF
     end
 
-    extension_dir = `php-config --extension-dir`.chomp
+    ext_list, extension_dir = get_ext
     (config_dir/"php.ini").write <<~EOS
       memory_limit = 2048M
       error_log = #{log_dir}/php-error.log
-      extension_dir=#{extension_dir}
       sys_temp_dir=#{tmp_dir}
       upload_tmp_dir=#{tmp_dir}
       xdebug.output_dir=#{tmp_dir}
-      #{PHP_EXTENSIONS.map { |ext| "extension=#{ext}.so" }.join("\n")}
+      extension_dir=#{extension_dir}
+      #{ext_list}
     EOS
 
     PORTS[:mysql].each_with_index do |port, index|
@@ -386,5 +386,19 @@ class Brewworks < Formula
     test_service("nginx -v")
     test_service("httpd -v")
     test_service("node --version")
+  end
+
+  private
+
+  def get_ext
+    extension_dir = `php-config --extension-dir`.chomp
+    ext_list = PHP_EXTENSIONS.map { |ext|
+      if ext == "xdebug"
+        "#zend_extension=#{ext}.so"
+        else
+          "#extension=#{ext}.so"
+      end}.join("\n")
+
+    [ext_list, extension_dir]
   end
 end
