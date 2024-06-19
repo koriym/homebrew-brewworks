@@ -36,15 +36,15 @@ wget https://raw.githubusercontent.com/koriym/homebrew-brewworks/1.x/brewworks.r
       "composer",
       "node"
     ]
-    # The port number for services that do not start is set to zero.
     PORTS = {
-      php: 9000,
-      mysql: 3306,
-      redis: 6379,
-      memcached: 11211,
-      nginx: 8080,
-      httpd: 8081
+      php: [9000],
+      mysql: [3306, 3307],
+      redis: [6379],
+      memcached: [11211],
+      nginx: [8080],
+      httpd: [8081]
     }
+    # The port number for services that do not start is set to zero.
     PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
 ```
 
@@ -84,7 +84,7 @@ This command will start all the services defined in your configuration file.
 . brewworks env
 ````
 
-This environment variable setting causes `php` and `mysql` to point to the specified version of the binary. The `mysql` client contains project-specific `my.conf` settings so you don't have to specify a port number or user name for every connection. A `mysql` command with no arguments will connect to the project-specific database.
+This environment variable setting causes `php` and `mysql` to point to the specified version of the binary. In addition to that, an alias `mysql@3306`, the client for each mysql service port, is created. This is useful for quick connections with argument-free commands and is easy to customize as it loads a project-specific my.conf.
 
 ## Project Structure
 
