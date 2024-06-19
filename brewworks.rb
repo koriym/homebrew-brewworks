@@ -23,7 +23,7 @@ class Brewworks < Formula
     mysql: [3306, 3307],
     redis: [6379, 6380],
     memcached: [11211, 11212],
-    nginx: [8080],
+    nginx: [8080, 8081],
     httpd: [8082]
   }
   PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
@@ -187,6 +187,7 @@ class Brewworks < Formula
       CONF
     end
 
+    include = PORTS[:nginx].map { |port| " include #{config_dir}/nginx_#{port}.conf;"}.join("\n")
     (config_dir/"nginx_main.conf").write <<~CONF
       events {
         worker_connections 1024;
@@ -198,7 +199,7 @@ class Brewworks < Formula
         sendfile        on;
         keepalive_timeout  65;
 
-        include #{config_dir}/nginx_*.conf;
+        #{include}
       }
     CONF
   end
@@ -245,7 +246,7 @@ class Brewworks < Formula
         #{PORTS[:memcached].map { |port| "manage_service 'Starting' 'memcached' #{port} 'memcached' '-d -m 64 -p #{port} -u memcached -c 1024 -P /tmp/memcached_#{port}.pid' ''" }.join("\n")}
         
         echo "Starting nginx services..."
-        #{PORTS[:nginx].map { |port| "manage_service 'Starting' 'nginx' #{port} 'nginx' '-c #{config_dir}/nginx_#{port}.conf' ''" }.join("\n")}
+        manage_service "Starting" "nginx" #{PORTS[:nginx].first} "nginx" "-c #{config_dir}/nginx_main.conf" ""
         
         echo "Starting httpd services..."
         #{PORTS[:httpd].map { |port| "manage_service 'Starting' 'httpd' #{port} 'httpd' '-f #{config_dir}/httpd_#{port}.conf' ''" }.join("\n")}
