@@ -20,11 +20,11 @@ class Brewworks < Formula
   ]
   PORTS = {
     php: [9000],
-    mysql: [3306, 3307],
-    redis: [6379, 6380],
-    memcached: [11211, 11212],
-    nginx: [8080],
-    httpd: [8082]
+    mysql: [3306],
+    redis: [6379],
+    memcached: [11211],
+    nginx: [0],
+    httpd: [8080]
   }
   PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
   # -- End Configuration Section --
@@ -84,15 +84,15 @@ class Brewworks < Formula
       CONF
     end
 
-    extension_dir = `php-config --extension-dir`.chomp
+    ext_list, extension_dir = get_php_extensions
     (config_dir/"php.ini").write <<~EOS
       memory_limit = 2048M
       error_log = #{log_dir}/php-error.log
-      extension_dir=#{extension_dir}
       sys_temp_dir=#{tmp_dir}
       upload_tmp_dir=#{tmp_dir}
       xdebug.output_dir=#{tmp_dir}
-      #{PHP_EXTENSIONS.map { |ext| "extension=#{ext}.so" }.join("\n")}
+      extension_dir=#{extension_dir}
+      #{ext_list}
     EOS
 
     PORTS[:mysql].each_with_index do |port, index|
@@ -187,6 +187,7 @@ class Brewworks < Formula
       CONF
     end
 
+    include = PORTS[:nginx].map { |port| " include #{config_dir}/nginx_#{port}.conf;"}.join("\n")
     (config_dir/"nginx_main.conf").write <<~CONF
       events {
         worker_connections 1024;
@@ -198,7 +199,7 @@ class Brewworks < Formula
         sendfile        on;
         keepalive_timeout  65;
 
-        include #{config_dir}/nginx_*.conf;
+        #{include}
       }
     CONF
   end
@@ -245,7 +246,7 @@ class Brewworks < Formula
         #{PORTS[:memcached].map { |port| "manage_service 'Starting' 'memcached' #{port} 'memcached' '-d -m 64 -p #{port} -u memcached -c 1024 -P /tmp/memcached_#{port}.pid' ''" }.join("\n")}
         
         echo "Starting nginx services..."
-        #{PORTS[:nginx].map { |port| "manage_service 'Starting' 'nginx' #{port} 'nginx' '-c #{config_dir}/nginx_#{port}.conf' ''" }.join("\n")}
+        manage_service "Starting" "nginx" #{PORTS[:nginx].first} "nginx" "-c #{config_dir}/nginx_main.conf" ""
         
         echo "Starting httpd services..."
         #{PORTS[:httpd].map { |port| "manage_service 'Starting' 'httpd' #{port} 'httpd' '-f #{config_dir}/httpd_#{port}.conf' ''" }.join("\n")}
@@ -275,7 +276,7 @@ class Brewworks < Formula
         #{PORTS[:memcached].map { |port| "manage_service 'Stopping' 'memcached' #{port} 'pkill' '-f memcached' ''" }.join("\n")}
         
         echo "Stopping nginx services..."
-        #{PORTS[:nginx].map { |port| "manage_service 'Stopping' 'nginx' #{port} '#{HOMEBREW_PREFIX}/bin/nginx' '-s stop' ''" }.join("\n")}
+        manage_service "Stopping" "nginx" #{PORTS[:nginx].first} '#{HOMEBREW_PREFIX}/bin/nginx' '-s stop' ''
         
         echo "Stopping httpd services..."
         #{PORTS[:httpd].map { |port| "manage_service 'Stopping' 'httpd' #{port} '#{HOMEBREW_PREFIX}/bin/apachectl' '-k stop' ''" }.join("\n")}
@@ -385,5 +386,19 @@ class Brewworks < Formula
     test_service("nginx -v")
     test_service("httpd -v")
     test_service("node --version")
+  end
+
+  private
+
+  def get_php_extensions
+    extension_dir = `php-config --extension-dir`.chomp
+    ext_list = PHP_EXTENSIONS.map { |ext|
+      if ext == "xdebug"
+        "#zend_extension=#{ext}.so"
+        else
+          "#extension=#{ext}.so"
+      end}.join("\n")
+
+    [ext_list, extension_dir]
   end
 end
