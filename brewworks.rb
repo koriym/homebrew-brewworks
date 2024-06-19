@@ -20,11 +20,11 @@ class Brewworks < Formula
   ]
   PORTS = {
     php: [9000],
-    mysql: [3306, 3307],
-    redis: [6379, 6380],
-    memcached: [11211, 11212],
-    nginx: [8080, 8081],
-    httpd: [8082]
+    mysql: [3306],
+    redis: [6379],
+    memcached: [11211],
+    nginx: [0],
+    httpd: [8080]
   }
   PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
   # -- End Configuration Section --
