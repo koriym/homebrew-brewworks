@@ -276,7 +276,7 @@ class Brewworks < Formula
         #{PORTS[:memcached].map { |port| "manage_service 'Stopping' 'memcached' #{port} 'pkill' '-f memcached' ''" }.join("\n")}
         
         echo "Stopping nginx services..."
-        #{PORTS[:nginx].map { |port| "manage_service 'Stopping' 'nginx' #{port} '#{HOMEBREW_PREFIX}/bin/nginx' '-s stop' ''" }.join("\n")}
+        manage_service "Stopping" "nginx" #{PORTS[:nginx].first} '#{HOMEBREW_PREFIX}/bin/nginx' '-s stop' ''
         
         echo "Stopping httpd services..."
         #{PORTS[:httpd].map { |port| "manage_service 'Stopping' 'httpd' #{port} '#{HOMEBREW_PREFIX}/bin/apachectl' '-k stop' ''" }.join("\n")}
