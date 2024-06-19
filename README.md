@@ -5,7 +5,7 @@ BrewWorks is a powerful Homebrew formula that allows you to easily set up projec
 ## Features
 
 - Install all necessary services for a project in one go, similar to Docker.
-- Generate custom commands for each project, allowing simple management of the development environment (e.g., `brewworks start`, `. brewworks env`).
+- Generate custom commands for each project, allowing simple management of the development environment (e.g., `myapp start`, `myapp stop`).
 - Create a dedicated custom folder for each project to centralize service port numbers, configuration files, and log directories.
 - Utilize native Mac services for improved performance compared to Docker.
 - Flexibility to add other services as needed.
@@ -76,7 +76,7 @@ wget https://raw.githubusercontent.com/koriym/homebrew-brewworks/1.x/brewworks.r
       redis: [6379],
       memcached: [11211],
       nginx: [8080],
-      httpd: [8081]
+      httpd: [0]
     }
     # The port number for services that do not start is set to zero.
     PHP_EXTENSIONS = ["xdebug", "pcov", "redis", "memcached"]
@@ -129,25 +129,24 @@ BrewWorks generates a dedicated folder for each project:
 ```shell
 myapp
 ├── config
-│   ├── httpd.conf
-│   ├── memcached.conf
-│   ├── my.cnf
-│   ├── nginx.conf
-│   ├── nginx_main.conf
-│   ├── php-fpm.conf
-│   ├── php.ini
-│   └── redis.conf
+│  ├── httpd_8082.conf
+│  ├── memcached_11212.conf
+│  ├── my_3306.cnf
+│  ├── my_3307.cnf
+│  ├── nginx_8080.conf
+│  ├── nginx_main.conf
+│  ├── php-fpm_9000.conf
+│  ├── php.ini
+│  └── redis_6379.conf
 ├── logs
-│   ├── mysql-error.log
-│   ├── nginx-access.log
-│   ├── nginx-error.log
-│   ├── php-fpm-access.log
-│   ├── php-fpm.log
-│   └── redis.log
-├── public  (Please link your public folder symlink here）
-│   └── index.html
+│  ├── php-fpm-access_9000.log
+│  ├── php-fpm_9000.log
+│  └── redis_6379.log
+├── public
+│  └── index.html
 ├── tmp (sys_temp_dir, upload_tmp_dir..)
-├── mysql (datbase data folder)
+├── mysql_0 (datbase data folder)
+├── mysql_1
 ```
 
 This project-specific folder structure makes it easy to manage configuration files and logs for each service and allows for smooth switching between projects.
