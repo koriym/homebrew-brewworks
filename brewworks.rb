@@ -57,7 +57,7 @@ class Brewworks < Formula
 
     write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, config_dir)
     write_env_script(script_dir, config_dir)
-    write_manage_services_script(script_dir, public_dir, config_dir, project_dir)
+    write_manage_services_script(script_dir, public_dir, config_dir)
 
     bin.install_symlink script_dir/"manage_services.sh" => PROJECT_NAME
 
@@ -226,7 +226,7 @@ class Brewworks < Formula
     chmod "+x", script_dir/"env.sh"
   end
 
-  def write_manage_services_script(script_dir, public_dir, config_dir, project_dir)
+  def write_manage_services_script(script_dir, public_dir, config_dir)
     (script_dir/"manage_services.sh").write <<~SCRIPT
       #!/bin/bash
 
@@ -292,10 +292,6 @@ class Brewworks < Formula
         fi
       }
 
-      function home() {
-        echo #{project_dir}
-      }
-
       case "$1" in
         env)
           set_env
@@ -306,16 +302,12 @@ class Brewworks < Formula
         stop)
           stop_services
           ;;
-        home)
-          home
-          ;;
         *)
           echo "Usage: {source} #{PROJECT_NAME} {env|start|stop}"
           echo "Commands:"
           echo "  source #{PROJECT_NAME} env  - Set the environment variables for the project."
           echo "  #{PROJECT_NAME} start       - Start the project services."
           echo "  #{PROJECT_NAME} stop        - Stop the project services."
-          echo "  #{PROJECT_NAME} home        - Show the project directory."
           exit 1
           ;;
       esac
