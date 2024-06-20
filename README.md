@@ -1,6 +1,6 @@
-# BrewWorks - Native and Isolated PHP Development Environments for Mac
+# BrewWorks - Native and Isolated PHP Development Environments
 
-BrewWorks is a collection of Homebrew formulas designed to simplify the setup and management of PHP development environments on Mac. It provides two main formulas:
+BrewWorks is a collection of Homebrew formulas designed to simplify the setup and management of PHP development environments on macOS and Linux (including WSL on Windows). It provides two main formulas:
 
 1. **[brewworks](README-brewworks.md)**: A powerful formula that allows you to easily set up project-specific development environments with common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js, without using Docker.
 

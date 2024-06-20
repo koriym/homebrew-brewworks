@@ -25,10 +25,10 @@ Unlike other utility software, BrewWorks doesn't require maintenance itself. Onc
 
 ## In what scenarios is BrewWorks most useful?
 
-BrewWorks is most useful when you need to quickly set up PHP development environments on Mac and customize them for project-specific requirements. Some scenarios where BrewWorks shines include:
+BrewWorks is most useful when you need to quickly set up PHP development environments and customize them for project-specific requirements. Some scenarios where BrewWorks shines include:
 
 - Developing multiple PHP projects simultaneously, each requiring different PHP versions or configurations.
-- Building development environments using native Mac services without relying on Docker.
+- Building development environments using native services without relying on Docker.
 - Sharing consistent environments among development teams, ensuring everyone works with the same setup.
 
 BrewWorks can significantly boost developer productivity in these scenarios.
@@ -40,7 +40,7 @@ BrewWorks generates a dedicated folder for each project, centralizing service po
 To switch between project-specific environments, we recommend the following best practices:
 
 1. Use environment variables with ". {yourapp} env` to set the binary path for each session, rather than relying on global switcher tools.
-2. Leverage terminal settings to create dedicated profiles for each project or PHP version. 
+2. Leverage terminal settings to create dedicated profiles for each project or PHP version.
 3. Execute BrewWorks commands from any directory, as they are custom-made for each project.
 
 By following these practices, you can easily switch between projects and avoid environment conflicts.
@@ -58,14 +58,14 @@ Adhering to these practices helps maintain consistent development environments a
 
 ## Why was BrewWorks created?
 
-BrewWorks was created to streamline the process of setting up PHP development environments on Mac, addressing the long-standing challenge of building development environments since the inception of PHP. The motivation behind BrewWorks was to provide a simple, efficient, and native solution, particularly for developers who prefer native services over virtualization tools like Docker. The goal was to offer:
+BrewWorks was created to streamline the process of setting up PHP development environments, addressing the long-standing challenge of building development environments since the inception of PHP. The motivation behind BrewWorks was to provide a simple, efficient, and native solution, particularly for developers who prefer native services over virtualization tools like Docker. The goal was to offer:
 
 - A straightforward and quick setup process.
 - A clean approach that doesn't modify global settings, leaving no traces behind when uninstalled.
 - Transparency and verifiability, with centralized project-based configurations and logs.
 - Easy management of services with custom commands, eliminating the need to remember complex service commands.
 - A tool that requires minimal learning curve, leveraging familiar Homebrew formulas.
-- High-performance environment utilizing native Mac services, without the overhead of virtualization.
+- High-performance environment utilizing native services, without the overhead of virtualization.
 - A free and open-source solution. (requiring no subscription!)
 
 The idea behind BrewWorks was to create a "toolless tool," leveraging Homebrew formulas to fulfill these requirements without the need for a separate software.
