@@ -70,7 +70,6 @@ BrewWorks automates the installation of PHP and Composer, eliminating the need f
 
 ## Usage
 
-
 1. Start Your Services:
 
 ```shell
