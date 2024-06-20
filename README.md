@@ -30,13 +30,13 @@ brew edit brewworks
 
 If you have made any edits, Reinstall to reflect them.
 
-``shell
+```shell
 brew reinstall brewworks
-````
+```
 
 Now start the services! All necessary services will be started at once.
 
-``shell
+```shell
 brewworks start
 ```
 
