@@ -47,7 +47,8 @@ class Phpcomplete < Formula
       'redis' => "",               # Redis client: https://pecl.php.net/package/redis
       'xhprof' => "",              # Hierarchical Profiler: https://pecl.php.net/package/xhprof
       'imagick' => "",             # Image processing library: https://pecl.php.net/package/imagick
-      'memcached' => "PHP_ZLIB_DIR=$(brew --prefix zlib)"  # Memcached client: https://pecl.php.net/package/memcached
+                                   # Memcached client: https://pecl.php.net/package/memcached
+      'memcached' => "PHP_ZLIB_DIR=$(brew --prefix zlib)"
     }
 
     versions.each do |version, xdebug_version|
@@ -58,7 +59,7 @@ class Phpcomplete < Formula
       if File.exist?("#{ext_dir}/xdebug.so")
         system "#{php_prefix}/bin/pecl upgrade xdebug || true"
       else
-        xdebug = (xdebug_version.empty)? "xdebug" : "xdebug-#{xdebug_version}"
+        xdebug = xdebug_version.empty? ? "xdebug" : "xdebug-#{xdebug_version}"
         system "#{php_prefix}/bin/pecl install #{xdebug} || true"
       end
 
@@ -71,15 +72,15 @@ class Phpcomplete < Formula
     end
 
     # Install a dummy file to indicate successful installation
-    (prefix/".installed").write("phpcomplete installation successful")
+    (prefix/"INSTALLED").write("phpcomplete installation successful")
   end
 
   def handle_pecl_installation(php_prefix, ext_dir, extension_name, special_cmd = "")
-    command = File.exist?("#{ext_dir}/#{extension_name}.so") ? "debug" : "install";
+    command = File.exist?("#{ext_dir}/#{extension_name}.so") ? "upgrade" : "install"
     system "yes no | #{special_cmd} #{php_prefix}/bin/pecl #{command} #{extension_name} || true"
   end
 
   test do
-    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/.installed")
+    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/INSTALLED")
   end
 end
