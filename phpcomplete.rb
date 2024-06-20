@@ -6,7 +6,7 @@ class Phpcomplete < Formula
   sha256 ""
   license "MIT"
 
-  # Please comment on any unnecessary PHP.
+  # Please comment out any unnecessary PHP versions.
   depends_on "shivammathur/php/php@5.6"
   depends_on "shivammathur/php/php@7.0"
   depends_on "shivammathur/php/php@7.1"
@@ -23,7 +23,7 @@ class Phpcomplete < Formula
   depends_on "zlib"
 
   def install
-    # PHP version with apcu, memcached, redis and xhprof pecl installation
+    # PHP versions with additional PECL packages
     pecl_install_versions = ["8.1", "8.2", "8.3"]
 
     versions = {
