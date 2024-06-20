@@ -262,6 +262,11 @@ class Brewworks < Formula
         #{PORTS[:httpd].map { |port| "manage_service 'Stopping' 'httpd' #{port} '#{HOMEBREW_PREFIX}/bin/apachectl' '-k stop' ''" }.join("\n")}
       }
 
+      function restart_services() {
+        stop_services
+        start_services
+      }
+
       function manage_service() {
         local action=$1
         local name=$2
@@ -301,6 +306,9 @@ class Brewworks < Formula
           ;;
         stop)
           stop_services
+          ;;
+        restart)
+          restart_services
           ;;
         *)
           echo "Usage: {source} #{PROJECT_NAME} {env|start|stop}"
