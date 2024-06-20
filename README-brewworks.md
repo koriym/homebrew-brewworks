@@ -30,13 +30,13 @@ brew edit brewworks
 
 If you have made any edits, Reinstall to reflect them.
 
-``shell
+```shell
 brew reinstall brewworks
-````
+```
 
 Now start the services! All necessary services will be started at once.
 
-``shell
+```shell
 brewworks start
 ```
 
@@ -139,16 +139,3 @@ While Docker is crucial for production, BrewWorks provides an optimized alternat
 
 For a detailed comparison of BrewWorks with Docker, please refer to our comparison article.
 
-## Leveraging Project-Centric Development
-
-To learn more about how you can leverage BrewWorks' project-specific directory structure to streamline your development process, check out our in-depth article: Empowering Project-Centric Development with BrewWorks.
-
-## Accelerating Development with PHP Complete
-
-While BrewWorks makes it incredibly easy to set up a project-specific development environment with all the necessary packages in just a few minutes, uninstalling BrewWorks will remove all the dependent packages, requiring time to reinstall them when needed again.
-
-To avoid this issue and further optimize your development workflow, consider using [PHP Complete](README-phpcompelete.md) in conjunction with BrewWorks. PHP Complete is a Homebrew formula that allows you to install multiple versions of PHP along with Xdebug and other popular PECL packages, providing a comprehensive PHP development environment.
-
-By installing all the required PHP versions using PHP Complete, you can ensure that your development environment remains intact even after uninstalling BrewWorks. This approach saves time and effort in rebuilding the environment from scratch.
-
-For more information on PHP Complete and how it can accelerate your PHP development workflow, please refer to the [PHP Complete README](https://github.com/koriym/homebrew-brewworks/blob/1.x/phpcomplete.rb).

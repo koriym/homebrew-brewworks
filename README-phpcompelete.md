@@ -15,16 +15,7 @@ PHP Complete is a Homebrew formula that allows you to install multiple versions 
 
 # Installation
 
-Tap the `koriym/brewworks` repository:
-
 ```shell
-brew tap koriym/brewworks
-```
-
-Install PHP Complete:
-
-```shell
-
 brew install phpcomplete
 ```
 
