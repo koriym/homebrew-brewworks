@@ -14,7 +14,7 @@ For more information on brewworks, its features, and how it compares to Docker, 
 
 ## phpcomplete
 
-PHP Complete allows you to install multiple PHP versions (5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3) using the `shivammathur/php` tap. It automatically installs Xdebug for all PHP versions and additional PECL packages for selected PHP versions.
+PHP Complete allows you to install multiple PHP versions (5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3) using the `[shivammathur/php](https://github.com/shivammathur/homebrew-php)` tap. It automatically installs Xdebug for all PHP versions and additional PECL packages for selected PHP versions.
 
 By installing all the required PHP versions using PHP Complete, you can ensure that your development environment remains intact even after uninstalling BrewWorks. This approach saves time and effort in rebuilding the environment from scratch.
 
