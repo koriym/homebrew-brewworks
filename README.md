@@ -30,13 +30,13 @@ brew edit brewworks
 
 If you have made any edits, Reinstall to reflect them.
 
-```shell
+``shell
 brew reinstall brewworks
-```
+````
 
 Now start the services! All necessary services will be started at once.
 
-```shell
+``shell
 brewworks start
 ```
 
@@ -86,7 +86,7 @@ myapp stop
 2. Set Environment Variables:
 
 ```shell
-. myapp env
+. brewworks env
 ````
 
 These simple yet powerful commands, unique to BrewWorks, dramatically simplify the management of your development environment. No more navigating through complex docker-compose files or manually starting and stopping individual services. With BrewWorks, you can control your entire development stack with ease and efficiency.
@@ -142,3 +142,13 @@ For a detailed comparison of BrewWorks with Docker, please refer to our comparis
 ## Leveraging Project-Centric Development
 
 To learn more about how you can leverage BrewWorks' project-specific directory structure to streamline your development process, check out our in-depth article: Empowering Project-Centric Development with BrewWorks.
+
+## Accelerating Development with PHP Complete
+
+While BrewWorks makes it incredibly easy to set up a project-specific development environment with all the necessary packages in just a few minutes, uninstalling BrewWorks will remove all the dependent packages, requiring time to reinstall them when needed again.
+
+To avoid this issue and further optimize your development workflow, consider using [PHP Complete](README-phpcompelete.md) in conjunction with BrewWorks. PHP Complete is a Homebrew formula that allows you to install multiple versions of PHP along with Xdebug and other popular PECL packages, providing a comprehensive PHP development environment.
+
+By installing all the required PHP versions using PHP Complete, you can ensure that your development environment remains intact even after uninstalling BrewWorks. This approach saves time and effort in rebuilding the environment from scratch.
+
+For more information on PHP Complete and how it can accelerate your PHP development workflow, please refer to the [PHP Complete README](https://github.com/koriym/homebrew-brewworks/blob/1.x/phpcomplete.rb).
