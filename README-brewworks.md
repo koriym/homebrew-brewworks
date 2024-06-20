@@ -40,7 +40,7 @@ Now start the services! All necessary services will be started at once.
 brewworks start
 ```
 
-You should be able to see it at http::localhost:8080/ .
+You should be able to see it at http://localhost:8080/ .
 
 Edit the configuration file in ``$(brew --prefix)/opt/brewworks/conf/`` for further development.
 
