@@ -182,8 +182,8 @@ class Brewworks < Formula
         LoadModule dir_module lib/httpd/modules/mod_dir.so
         
         ServerName localhost
-        User ${APACHE_RUN_USER}
-        Group ${APACHE_RUN_GROUP}
+        User www
+        Group www
         
         <IfModule dir_module>
             DirectoryIndex index.php index.html
