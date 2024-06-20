@@ -39,13 +39,15 @@ class Phpcomplete < Formula
       "5.6" => "2.5.5"
     }
 
+    # Extensions to be installed along with optional special commands
+    # 'memcached' requires the path to zlib, hence the special command
     extensions = {
-      'pcov' => "",
-      'apcu' => "",
-      'redis' => "",
-      'xhprof' => "",
-      'imagick' => "",
-      'memcached' => "PHP_ZLIB_DIR=$(brew --prefix zlib)"
+      'pcov' => "",                # Code coverage driver: https://pecl.php.net/package/pcov
+      'apcu' => "",                # APC User Cache: https://pecl.php.net/package/apcu
+      'redis' => "",               # Redis client: https://pecl.php.net/package/redis
+      'xhprof' => "",              # Hierarchical Profiler: https://pecl.php.net/package/xhprof
+      'imagick' => "",             # Image processing library: https://pecl.php.net/package/imagick
+      'memcached' => "PHP_ZLIB_DIR=$(brew --prefix zlib)"  # Memcached client: https://pecl.php.net/package/memcached
     }
 
     versions.each do |version, xdebug_version|
