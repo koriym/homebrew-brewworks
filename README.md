@@ -86,7 +86,7 @@ myapp stop
 2. Set Environment Variables:
 
 ```shell
-. brewworks env
+. myapp env
 ````
 
 These simple yet powerful commands, unique to BrewWorks, dramatically simplify the management of your development environment. No more navigating through complex docker-compose files or manually starting and stopping individual services. With BrewWorks, you can control your entire development stack with ease and efficiency.
