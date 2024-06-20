@@ -1,6 +1,6 @@
 # PHP Complete
 
-PHP Complete is a Homebrew formula that allows you to install multiple versions of PHP along with Xdebug and other popular PECL packages. It simplifies the process of setting up a comprehensive PHP development environment on macOS.
+PHP Complete is a Homebrew formula that allows you to install multiple versions of PHP, along with Xdebug and other popular PECL packages. It simplifies the process of setting up a comprehensive PHP development environment on macOS.
 
 ## Features
 
@@ -29,9 +29,8 @@ You can customize the PHP versions and extensions installed by PHP Complete by m
 brew edit phpcompelete
 ```
 
-- To exclude specific PHP versions, comment out the corresponding depends_on lines in the formula.
-- To change the Xdebug version for a specific PHP version, update the VERSIONS hash in the formula.
-- To add or remove PECL packages, modify the EXTENSIONS hash in the formula. Specify the package name as the key and any special installation commands as the value.
+- Exclude specific PHP versions by commenting out the corresponding depends_on lines in the formula and modify VERSIONS.
+- Add or remove PECL packages by modifying the EXTENSIONS hash in the formula.
 
 Remember to update the `PECL_INSTALL_VERSIONS` array to specify the PHP versions for which the additional PECL packages should be installed.
 

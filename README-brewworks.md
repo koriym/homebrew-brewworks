@@ -138,4 +138,3 @@ BrewWorks simplifies the setup process by allowing the installation of PHP, Comp
 While Docker is crucial for production, BrewWorks provides an optimized alternative for Mac development. By combining native performance with Homebrew's simplicity, BrewWorks enhances productivity and development experience, making it an invaluable tool for Mac developers.
 
 For a detailed comparison of BrewWorks with Docker, please refer to our comparison article.
-
