@@ -2,9 +2,9 @@
 
 BrewWorks is a collection of Homebrew formulas designed to simplify the setup and management of PHP development environments on Mac. It provides two main formulas:
 
-1. **[brewworks](brewworks.rb)**: A powerful formula that allows you to easily set up project-specific development environments with common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js, without using Docker.
+1. **[brewworks](README-brewworks.md)**: A powerful formula that allows you to easily set up project-specific development environments with common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js, without using Docker.
 
-2. **[phpcomplete](phpcomplete.rb)**: A formula that enables you to install multiple versions of PHP along with Xdebug and other popular PECL packages, providing a comprehensive PHP development environment.
+2. **[phpcomplete](README-phpcomplete.md)**: A formula that enables you to install multiple versions of PHP along with Xdebug and other popular PECL packages, providing a comprehensive PHP development environment.
 
 ## brewworks
 
