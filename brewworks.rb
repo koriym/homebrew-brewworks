@@ -1,4 +1,5 @@
 require "pathname"
+require 'etc'
 
 class Brewworks < Formula
   url "file:///dev/null"
@@ -60,8 +61,9 @@ class Brewworks < Formula
 
     bin.install_symlink script_dir/"manage_services.sh" => PROJECT_NAME
 
+    user = Etc.getlogin
     PORTS[:mysql].each_with_index do |port, index|
-      system "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql_#{index}"
+      system "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql_#{index}", "--user=#{user}"
     end
   end
 
@@ -110,6 +112,8 @@ class Brewworks < Formula
         user=root
         port=#{port}
         socket=#{tmp_dir}/mysql_#{port}.sock
+
+        [mysql]
         prompt=mysql@#{port}:\\d>\\_
       CONF
     end
