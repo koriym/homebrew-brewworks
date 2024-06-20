@@ -58,11 +58,8 @@ class Phpcomplete < Formula
       if File.exist?("#{ext_dir}/xdebug.so")
         system "#{php_prefix}/bin/pecl upgrade xdebug || true"
       else
-        if xdebug_version.empty?
-          system "#{php_prefix}/bin/pecl install xdebug || true"
-        else
-          system "#{php_prefix}/bin/pecl install xdebug-#{xdebug_version} || true"
-        end
+        xdebug = (xdebug_version.empty)? "xdebug" : "xdebug-#{xdebug_version}"
+        system "#{php_prefix}/bin/pecl install #{xdebug} || true"
       end
 
       # Install other PECL packages only for supported versions
@@ -78,11 +75,8 @@ class Phpcomplete < Formula
   end
 
   def handle_pecl_installation(php_prefix, ext_dir, extension_name, special_cmd = "")
-    if File.exist?("#{ext_dir}/#{extension_name}.so")
-      system "yes no | #{special_cmd} #{php_prefix}/bin/pecl upgrade #{extension_name} || true"
-    else
-      system "yes no | #{special_cmd} #{php_prefix}/bin/pecl install #{extension_name} || true"
-    end
+    command = File.exist?("#{ext_dir}/#{extension_name}.so") ? "debug" : "install";
+    system "yes no | #{special_cmd} #{php_prefix}/bin/pecl #{command} #{extension_name} || true"
   end
 
   test do
