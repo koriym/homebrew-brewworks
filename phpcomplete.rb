@@ -23,8 +23,10 @@ class Phpcomplete < Formula
 
   def install
     versions = {
-      "8.1" => "",
+      "8.3" => "",
       "8.2" => "",
+      "8.1" => "",
+      "8.0" => "",
       "7.4" => "3.1.6",
       "7.3" => "3.1.6",
       "7.2" => "3.1.6",
@@ -33,11 +35,13 @@ class Phpcomplete < Formula
       "5.6" => "2.5.5"
     }
 
+    supported_versions = ["8.1", "8.2", "8.3"]
+
     versions.each do |version, xdebug_version|
       php_prefix = "#{HOMEBREW_PREFIX}/opt/php@#{version}"
       ext_dir = `#{php_prefix}/bin/php-config --extension-dir`.strip
 
-      # Check if xdebug is installed
+      # Install xdebug for all versions
       if File.exist?("#{ext_dir}/xdebug.so")
         system "#{php_prefix}/bin/pecl upgrade xdebug || true"
       else
@@ -48,8 +52,8 @@ class Phpcomplete < Formula
         end
       end
 
-      # Install other PECL packages
-      if version == "8.2"
+      # Install other PECL packages only for supported versions
+      if supported_versions.include?(version)
         if File.exist?("#{ext_dir}/pcov.so")
           system "#{php_prefix}/bin/pecl upgrade pcov || true"
         else
@@ -73,18 +77,18 @@ class Phpcomplete < Formula
         else
           system "#{php_prefix}/bin/pecl install xhprof || true"
         end
-      end
 
-      if File.exist?("#{ext_dir}/memcached.so")
-        system "yes no | PHP_ZLIB_DIR=$(brew --prefix zlib) #{php_prefix}/bin/pecl upgrade memcached || true"
-      else
-        system "yes no | PHP_ZLIB_DIR=$(brew --prefix zlib) #{php_prefix}/bin/pecl install memcached || true"
-      end
+        if File.exist?("#{ext_dir}/memcached.so")
+          system "yes no | PHP_ZLIB_DIR=$(brew --prefix zlib) #{php_prefix}/bin/pecl upgrade memcached || true"
+        else
+          system "yes no | PHP_ZLIB_DIR=$(brew --prefix zlib) #{php_prefix}/bin/pecl install memcached || true"
+        end
 
-      if File.exist?("#{ext_dir}/imagick.so")
-        system "yes no | #{php_prefix}/bin/pecl upgrade imagick || true"
-      else
-        system "yes no | #{php_prefix}/bin/pecl install imagick || true"
+        if File.exist?("#{ext_dir}/imagick.so")
+          system "yes no | #{php_prefix}/bin/pecl upgrade imagick || true"
+        else
+          system "yes no | #{php_prefix}/bin/pecl install imagick || true"
+        end
       end
     end
 
@@ -98,14 +102,18 @@ class Phpcomplete < Formula
       php_prefix = "#{HOMEBREW_PREFIX}/opt/php@#{version}"
       system "#{php_prefix}/bin/php -v"
 
-      # Test each PECL extension
+      # Test xdebug for all versions
       system "#{php_prefix}/bin/php -m | grep xdebug || true"
-      system "#{php_prefix}/bin/php -m | grep pcov || true" if version.to_f >= 8.2
-      system "#{php_prefix}/bin/php -m | grep apcu || true" if version.to_f >= 8.2
-      system "#{php_prefix}/bin/php -m | grep redis || true" if version.to_f >= 8.2
-      system "#{php_prefix}/bin/php -m | grep xhprof || true" if version.to_f >= 8.2
-      system "#{php_prefix}/bin/php -m | grep memcached || true"
-      system "#{php_prefix}/bin/php -m | grep imagick || true"
+
+      # Test other PECL extensions only for supported versions
+      if version.to_f >= 8.1
+        system "#{php_prefix}/bin/php -m | grep pcov || true"
+        system "#{php_prefix}/bin/php -m | grep apcu || true"
+        system "#{php_prefix}/bin/php -m | grep redis || true"
+        system "#{php_prefix}/bin/php -m | grep xhprof || true"
+        system "#{php_prefix}/bin/php -m | grep memcached || true"
+        system "#{php_prefix}/bin/php -m | grep imagick || true"
+      end
     end
   end
 end
