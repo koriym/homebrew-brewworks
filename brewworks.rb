@@ -237,25 +237,12 @@ class Brewworks < Formula
       function start_services() {
         set_env
 
-        echo "Starting php-fpm services..."
         #{PORTS[:php].map { |port| "manage_service 'Starting' 'php-fpm' #{port} '#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/sbin/php-fpm' '-y #{config_dir}/php-fpm_#{port}.conf -c #{config_dir}/php.ini' ''" }.join("\n")}
-        
-        echo "Starting mysql services..."
         #{PORTS[:mysql].map { |port| "manage_service 'Starting' 'mysql' #{port} '#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld_safe' '--defaults-file=#{config_dir}/my_#{port}.cnf' ''" }.join("\n")}
-        
-        echo "Starting redis services..."
         #{PORTS[:redis].map { |port| "manage_service 'Starting' 'redis-server' #{port} 'redis-server' '#{config_dir}/redis_#{port}.conf' ''" }.join("\n")}
-        
-        echo "Starting memcached services..."
         #{PORTS[:memcached].map { |port| "manage_service 'Starting' 'memcached' #{port} 'memcached' '-d -m 64 -p #{port} -u memcached -c 1024 -P /tmp/memcached_#{port}.pid' ''" }.join("\n")}
-        
-        echo "Starting nginx services..."
         manage_service "Starting" "nginx" #{PORTS[:nginx].first} "nginx" "-c #{config_dir}/nginx_main.conf" ""
-        
-        echo "Starting httpd services..."
         #{PORTS[:httpd].map { |port| "manage_service 'Starting' 'httpd' #{port} 'httpd' '-f #{config_dir}/httpd_#{port}.conf' ''" }.join("\n")}
-        
-        echo "Services started with these settings:"
         #{PORTS[:php].map { |port| "echo '#{config_dir}/php-fpm_#{port}.conf'" }.join("\n")}
         echo "#{config_dir}/php.ini"
         #{PORTS[:mysql].map { |port| "echo '#{config_dir}/my_#{port}.cnf'" }.join("\n")}
@@ -267,22 +254,11 @@ class Brewworks < Formula
       }
 
       function stop_services() {
-        echo "Stopping php-fpm services..."
         #{PORTS[:php].map { |port| "manage_service 'Stopping' 'php-fpm' #{port} 'pkill' '-f php-fpm' ''" }.join("\n")}
-        
-        echo "Stopping mysql services..."
-        #{PORTS[:mysql].map { |port| "manage_service 'Stopping' 'mysql' #{port} '#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin' '--defaults-file=#{config_dir}/my_#{port}.cnf -uroot shutdown' ''" }.join("\n")}
-        
-        echo "Stopping redis services..."
+        #{PORTS[:mysql].map { |port| "manage_service 'Stopping' 'mysql' #{port} '#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqladmin' '--defaults-file=#{config_dir}/my_#{port}.cnf -uroot -h 127.0.0.1 --port #{port} shutdown' ''" }.join("\n")}
         #{PORTS[:redis].map { |port| "manage_service 'Stopping' 'redis-server' #{port} '#{HOMEBREW_PREFIX}/bin/redis-cli' 'shutdown' ''" }.join("\n")}
-        
-        echo "Stopping memcached services..."
         #{PORTS[:memcached].map { |port| "manage_service 'Stopping' 'memcached' #{port} 'pkill' '-f memcached' ''" }.join("\n")}
-        
-        echo "Stopping nginx services..."
         manage_service "Stopping" "nginx" #{PORTS[:nginx].first} '#{HOMEBREW_PREFIX}/bin/nginx' '-s stop' ''
-        
-        echo "Stopping httpd services..."
         #{PORTS[:httpd].map { |port| "manage_service 'Stopping' 'httpd' #{port} '#{HOMEBREW_PREFIX}/bin/apachectl' '-k stop' ''" }.join("\n")}
       }
 
@@ -297,7 +273,7 @@ class Brewworks < Formula
         if [ $port -gt 0 ]; then
           if lsof -Pi :$port -sTCP:LISTEN -t > /dev/null; then
             if [ "$action" == "Starting" ]; then
-              echo "$name is already running on port $port"
+              echo [Running] "$name is already running on port $port"
             elif [ "$action" == "Stopping" ]; then
               echo "$action $name running on port $port..."
               $cmd $conf
@@ -310,7 +286,7 @@ class Brewworks < Formula
                 echo $! > $pid_file
               fi
             elif [ "$action" == "Stopping" ]; then
-              echo "$name service already stopped on port $port"
+              echo "[Stopped] $name service already stopped on port $port"
             fi
           fi
         fi
