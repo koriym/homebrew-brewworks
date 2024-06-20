@@ -23,6 +23,39 @@ To access Docker services from your BrewWorks environment, simply update your pr
 
 Unlike other utility software, BrewWorks doesn't require maintenance itself. Once you've set up your desired environment, you can even uninstall BrewWorks if you want. The project-specific shell commands created by BrewWorks have hardcoded port numbers and log folder locations, and they are just simple shell commands without dependencies. You can copy and edit them locally even after uninstalling BrewWorks.
 
+## In what scenarios is BrewWorks most useful?
+
+BrewWorks is most useful when you need to quickly set up PHP development environments on Mac and customize them for project-specific requirements. Some scenarios where BrewWorks shines include:
+
+- Developing multiple PHP projects simultaneously, each requiring different PHP versions or configurations.
+- Building development environments using native Mac services without relying on Docker.
+- Sharing consistent environments among development teams, ensuring everyone works with the same setup.
+
+BrewWorks can significantly boost developer productivity in these scenarios.
+
+## How do I manage multiple projects using BrewWorks?
+
+BrewWorks generates a dedicated folder for each project, centralizing service port numbers, configuration files, and log directories. This makes switching between projects seamless.
+
+To switch between project-specific environments, we recommend the following best practices:
+
+1. Use environment variables with ". {yourapp} env` to set the binary path for each session, rather than relying on global switcher tools.
+2. Leverage terminal settings to create dedicated profiles for each project or PHP version. 
+3. Execute BrewWorks commands from any directory, as they are custom-made for each project.
+
+By following these practices, you can easily switch between projects and avoid environment conflicts.
+
+## What are the recommended practices for working with a team using BrewWorks?
+
+When working with a team using BrewWorks, consider the following practices:
+
+1. Keep the BrewWorks configuration file (`brewworks.rb`) under version control (e.g., Git) to ensure all team members share the same setup.
+2. Use the configuration file to quickly set up environments for new team members joining the project.
+3. Communicate any changes made to the environment to all team members, ensuring everyone applies the same modifications.
+4. If services like databases need to be shared, use common port numbers in the configuration file.
+
+Adhering to these practices helps maintain consistent development environments across the team and facilitates smooth collaboration.
+
 ## How can I contribute to BrewWorks?
 
 If you have ideas for improving BrewWorks or want to contribute to the project, you can:
