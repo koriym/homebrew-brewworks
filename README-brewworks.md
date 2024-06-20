@@ -1,13 +1,13 @@
-# BrewWorks - Native and Isolated PHP Development Environments for Mac, without Docker
+# Native and Isolated PHP Development Environments without Docker
 
-BrewWorks is a powerful Homebrew formula that allows you to easily set up project-specific development environments on Mac without using Docker. It enables you to install and manage common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js with customized configurations for each project.
+BrewWorks is a powerful Homebrew formula that allows you to easily set up project-specific development environments without using Docker. It enables you to install and manage common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js with customized configurations for each project.
 
 ## Features
 
 - Install all necessary services for a project in one go, similar to Docker.
 - Generate custom commands for each project, allowing simple management of the development environment (e.g., `myapp start`, `myapp stop`).
 - Create a dedicated custom folder for each project to centralize service port numbers, configuration files, and log directories.
-- Utilize native Mac services for improved performance compared to Docker.
+- Utilize native services for improved performance compared to Docker
 - Flexibility to add other services as needed.
 
 For a detailed exploration of this approach, its design philosophy, and how it compares to other options, please refer to our [self-review document](docs/self-review.md).
@@ -130,10 +130,10 @@ brew uninstall ./myapp.rb
 
 ## Why BrewWorks?
 
-BrewWorks is an excellent alternative to Docker on Mac, enhancing development efficiency with its customizable, user-friendly interface. Unlike Docker, which relies on virtualizing Linux containers to run on macOS, BrewWorks leverages native Mac services for better performance.
+BrewWorks is an excellent alternative to Docker, enhancing development efficiency with its customizable, user-friendly interface. Unlike Docker, which relies on virtualizing Linux containers to run, BrewWorks leverages native services for better performance.
 
 BrewWorks simplifies the setup process by allowing the installation of PHP, Composer, and other necessary services through Homebrew, reducing complexity.
 
-While Docker is crucial for production, BrewWorks provides an optimized alternative for Mac development. By combining native performance with Homebrew's simplicity, BrewWorks enhances productivity and development experience, making it an invaluable tool for Mac developers.
+While Docker is crucial for production, BrewWorks provides an optimized alternative for local development. By combining native performance with Homebrew's simplicity, BrewWorks enhances productivity and development experience.
 
 For a detailed comparison of BrewWorks with Docker, please refer to our comparison article.
