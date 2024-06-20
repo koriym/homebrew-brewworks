@@ -1,6 +1,6 @@
 # Homebrew Formula: A New Choice for Project-Specific Dependency Management on Mac
 
-When it comes to managing project dependencies on Mac, developers have typically had two main options: using global Homebrew installations or leveraging Docker for isolation. Both approaches have their merits, but also come with limitations. The custom Homebrew formula approach, as described in the [Project-Specific Development Environment Setup for Mac](link-to-the-README), offers a new alternative that combines the simplicity of Homebrew with the benefits of project-specific dependency management.
+When it comes to managing project dependencies on Mac, developers have typically had two main options: using global Homebrew installations or leveraging Docker for isolation. Both approaches have their merits, but also come with limitations. The custom Homebrew formula approach, as described in the [Custome Install in REDAME](../README-brewworks.md#custome-install), offers a new alternative that combines the simplicity of Homebrew with the benefits of project-specific dependency management.
 
 ## Traditional Approaches: Global Homebrew and Docker
 
