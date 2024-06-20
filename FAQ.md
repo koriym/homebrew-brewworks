@@ -56,6 +56,18 @@ When working with a team using BrewWorks, consider the following practices:
 
 Adhering to these practices helps maintain consistent development environments across the team and facilitates smooth collaboration.
 
+## Can Linux and Windows (WSL) users utilize BrewWorks, and what should they do if they encounter a "Too many open files" error?
+
+Yes, Linux users and Windows users with the Windows Subsystem for Linux (WSL) can use BrewWorks. By setting up Homebrew within their Linux environment, they can leverage BrewWorks to manage their PHP development setup.
+
+However, please note that Linux and WSL users might encounter a "Too many open files" error when running BrewWorks due to the default file descriptor limit. If you encounter this error, try increasing the limit by running the following command:
+
+```shell
+$> ulimit -n 4096
+```shell
+
+If the error persists, you may need to further adjust the limit by modifying the `/etc/security/limits.conf` file within your WSL environment and restarting your WSL instance.
+
 ## Why was BrewWorks created?
 
 BrewWorks was created to streamline the process of setting up PHP development environments, addressing the long-standing challenge of building development environments since the inception of PHP. The motivation behind BrewWorks was to provide a simple, efficient, and native solution, particularly for developers who prefer native services over virtualization tools like Docker. The goal was to offer:
