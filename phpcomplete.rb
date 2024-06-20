@@ -48,7 +48,15 @@ class Phpcomplete < Formula
       'xhprof' => "",              # Hierarchical Profiler: https://pecl.php.net/package/xhprof
       'imagick' => "",             # Image processing library: https://pecl.php.net/package/imagick
       'memcached' => "PHP_ZLIB_DIR=$(brew --prefix zlib)"  # Memcached client: https://pecl.php.net/package/memcached
-    }
+    }このPRでは、`Phpcomplete`フォーミュラを導入します。これは、Homebrewを介して複数のPHPバージョンとそのPECL拡張をインストール・管理するための便利な方法です。
+
+主な変更点は以下の通りです：
+- 特定のPHPバージョン（5.6から8.3まで）に依存する`Phpcomplete`フォーミュラの作成
+- PHPバージョンがXdebugおよび他のPECLパッケージと一緒にインストールされる
+- その他のPECL拡張子（'pcov'、'apcu'、'redis'、'xhprof'、'imagick'、'memcached'）も対応
+- PHPバージョンに基づくPECL拡張のインストール/アップグレードの自動化
+
+`Phpcomplete`フォーミュラの目的は、開発者向けのPHPバージョンとPECLパッケージ管理をよりストリームライン化し、効率化することです。このフォーミュラを提供することで、複数のPHPバージョンとその拡張機能の管理から開発者を開放し、開発作業により集中できるようにすることを目指しています。
 
     versions.each do |version, xdebug_version|
       php_prefix = "#{HOMEBREW_PREFIX}/opt/php@#{version}"
@@ -86,6 +94,6 @@ class Phpcomplete < Formula
   end
 
   test do
-    # No tests, as we don't need to check the installation of every PHP version
+    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/dummy")
   end
 end
