@@ -87,6 +87,9 @@ class Phpcomplete < Formula
         system "yes no | #{php_prefix}/bin/pecl install imagick || true"
       end
     end
+
+    # Install a dummy file to indicate successful installation
+    (prefix/"dummy").write("phpcomplete installation successful")
   end
 
   test do
