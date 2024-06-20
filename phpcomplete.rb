@@ -74,7 +74,7 @@ class Phpcomplete < Formula
     end
 
     # Install a dummy file to indicate successful installation
-    (prefix/"dummy").write("phpcomplete installation successful")
+    (prefix/".installed").write("phpcomplete installation successful")
   end
 
   def handle_pecl_installation(php_prefix, ext_dir, extension_name, special_cmd = "")
@@ -86,6 +86,6 @@ class Phpcomplete < Formula
   end
 
   test do
-    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/dummy")
+    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/.installed")
   end
 end
