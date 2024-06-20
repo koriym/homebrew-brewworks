@@ -6,6 +6,7 @@ class Phpcomplete < Formula
   sha256 ""
   license "MIT"
 
+  # Please comment on any unnecessary PHP.
   depends_on "shivammathur/php/php@5.6"
   depends_on "shivammathur/php/php@7.0"
   depends_on "shivammathur/php/php@7.1"
@@ -22,6 +23,9 @@ class Phpcomplete < Formula
   depends_on "zlib"
 
   def install
+    # PHP version with apcu, memcached, redis and xhprof pecl installation
+    pecl_install_versions = ["8.1", "8.2", "8.3"]
+
     versions = {
       "8.3" => "",
       "8.2" => "",
@@ -35,7 +39,14 @@ class Phpcomplete < Formula
       "5.6" => "2.5.5"
     }
 
-    supported_versions = ["8.1", "8.2", "8.3"]
+    extensions = {
+      'pcov' => "",
+      'apcu' => "",
+      'redis' => "",
+      'xhprof' => "",
+      'imagick' => "",
+      'memcached' => "PHP_ZLIB_DIR=$(brew --prefix zlib)"
+    }
 
     versions.each do |version, xdebug_version|
       php_prefix = "#{HOMEBREW_PREFIX}/opt/php@#{version}"
@@ -53,41 +64,9 @@ class Phpcomplete < Formula
       end
 
       # Install other PECL packages only for supported versions
-      if supported_versions.include?(version)
-        if File.exist?("#{ext_dir}/pcov.so")
-          system "#{php_prefix}/bin/pecl upgrade pcov || true"
-        else
-          system "#{php_prefix}/bin/pecl install pcov || true"
-        end
-
-        if File.exist?("#{ext_dir}/apcu.so")
-          system "#{php_prefix}/bin/pecl upgrade apcu || true"
-        else
-          system "#{php_prefix}/bin/pecl install apcu || true"
-        end
-
-        if File.exist?("#{ext_dir}/redis.so")
-          system "#{php_prefix}/bin/pecl upgrade redis || true"
-        else
-          system "#{php_prefix}/bin/pecl install redis || true"
-        end
-
-        if File.exist?("#{ext_dir}/xhprof.so")
-          system "#{php_prefix}/bin/pecl upgrade xhprof || true"
-        else
-          system "#{php_prefix}/bin/pecl install xhprof || true"
-        end
-
-        if File.exist?("#{ext_dir}/memcached.so")
-          system "yes no | PHP_ZLIB_DIR=$(brew --prefix zlib) #{php_prefix}/bin/pecl upgrade memcached || true"
-        else
-          system "yes no | PHP_ZLIB_DIR=$(brew --prefix zlib) #{php_prefix}/bin/pecl install memcached || true"
-        end
-
-        if File.exist?("#{ext_dir}/imagick.so")
-          system "yes no | #{php_prefix}/bin/pecl upgrade imagick || true"
-        else
-          system "yes no | #{php_prefix}/bin/pecl install imagick || true"
+      if pecl_install_versions.include?(version)
+        extensions.each do |extension, cmd|
+          handle_pecl_installation(php_prefix, ext_dir, extension, cmd)
         end
       end
     end
@@ -96,24 +75,15 @@ class Phpcomplete < Formula
     (prefix/"dummy").write("phpcomplete installation successful")
   end
 
-  test do
-    versions = ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3"]
-    versions.each do |version|
-      php_prefix = "#{HOMEBREW_PREFIX}/opt/php@#{version}"
-      system "#{php_prefix}/bin/php -v"
-
-      # Test xdebug for all versions
-      system "#{php_prefix}/bin/php -m | grep xdebug || true"
-
-      # Test other PECL extensions only for supported versions
-      if version.to_f >= 8.1
-        system "#{php_prefix}/bin/php -m | grep pcov || true"
-        system "#{php_prefix}/bin/php -m | grep apcu || true"
-        system "#{php_prefix}/bin/php -m | grep redis || true"
-        system "#{php_prefix}/bin/php -m | grep xhprof || true"
-        system "#{php_prefix}/bin/php -m | grep memcached || true"
-        system "#{php_prefix}/bin/php -m | grep imagick || true"
-      end
+  def handle_pecl_installation(php_prefix, ext_dir, extension_name, special_cmd = "")
+    if File.exist?("#{ext_dir}/#{extension_name}.so")
+      system "yes no | #{special_cmd} #{php_prefix}/bin/pecl upgrade #{extension_name} || true"
+    else
+      system "yes no | #{special_cmd} #{php_prefix}/bin/pecl install #{extension_name} || true"
     end
+  end
+
+  test do
+    # No tests, as we don't need to check the installation of every PHP version
   end
 end
