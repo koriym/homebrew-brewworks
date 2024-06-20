@@ -9,11 +9,11 @@ PHP Complete is a Homebrew formula that allows you to install multiple versions 
 - Installs additional PECL packages (pcov, apcu, redis, xhprof, imagick, memcached) for selected PHP versions (`8.1`, `8.2`, `8.3`)
 - Provides a convenient way to manage PHP extensions and dependencies
 
-# Requirements
+## Requirements
 
 - [Homebrew](https://brew.sh/)
 
-# Installation
+## Installation
 
 ```shell
 brew install phpcomplete
