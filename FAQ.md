@@ -64,7 +64,7 @@ However, please note that Linux and WSL users might encounter a "Too many open f
 
 ```shell
 $> ulimit -n 4096
-```shell
+```
 
 If the error persists, you may need to further adjust the limit by modifying the `/etc/security/limits.conf` file within your WSL environment and restarting your WSL instance.
 
