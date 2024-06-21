@@ -365,7 +365,7 @@ class Brewworks < Formula
   end
 
   test do
-    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/script/INSTALLED")
+    assert(File.exist?("#{prefix}/script/env.sh"), "script/env.sh does not exist.")
     test_service("php -v")
     test_service("mysql --version")
     test_service("redis-server --version")
