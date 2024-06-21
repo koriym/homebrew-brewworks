@@ -50,6 +50,17 @@ class Brewworks < Formula
     (tmp_dir/".gitkeep").write("")
     (log_dir/".gitkeep").write("")
 
+    write_index(public_dir)
+    write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, config_dir)
+    write_env_script(script_dir, config_dir)
+    write_manage_services_script(script_dir, public_dir, config_dir, project_dir)
+
+    init_mysql_db(project_dir)
+    bin.install_symlink script_dir/"manage_services.sh" => PROJECT_NAME
+  end
+
+
+  def write_index(public_dir)
     (public_dir/"index.html").write <<~HTML
       <html>
         <body>
@@ -59,17 +70,6 @@ class Brewworks < Formula
         </body>
       </html>
     HTML
-
-    write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, config_dir)
-    write_env_script(script_dir, config_dir)
-    write_manage_services_script(script_dir, public_dir, config_dir, project_dir)
-
-    bin.install_symlink script_dir/"manage_services.sh" => PROJECT_NAME
-
-    user = Etc.getlogin
-    PORTS[:mysql].each_with_index do |port, index|
-      system "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql_#{index}", "--user=#{user}"
-    end
   end
 
   def write_config_files(project_dir, log_dir, php_lib_path, public_dir, tmp_dir, config_dir)
@@ -365,6 +365,7 @@ class Brewworks < Formula
   end
 
   test do
+    assert_match "phpcomplete installation successful", shell_output("cat #{prefix}/script/INSTALLED")
     test_service("php -v")
     test_service("mysql --version")
     test_service("redis-server --version")
@@ -375,6 +376,13 @@ class Brewworks < Formula
   end
 
   private
+
+  def init_mysql_db(project_dir)
+    user = Etc.getlogin
+    PORTS[:mysql].each_with_index do |port, index|
+      system "#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysqld", "--initialize-insecure", "--datadir=#{project_dir}/mysql_#{index}", "--user=#{user}"
+    end
+  end
 
   def get_php_extensions
     extension_dir = `php-config --extension-dir`.chomp
