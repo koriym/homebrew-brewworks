@@ -10,7 +10,7 @@ BrewWorks is a collection of Homebrew formulas designed to simplify the setup an
 
 BrewWorks enables you to install and manage all the necessary services for a project in one go, similar to Docker. It generates custom commands for each project, allowing simple management of the development environment.
 
-For more information on brewworks, its features, and how it compares to Docker, please refer to the [brewworks README](brewworks.rb).
+For more information on brewworks, its features, and how it compares to Docker, please refer to the [brewworks README](README-brewworks.md).
 
 ## phpcomplete
 
@@ -18,7 +18,7 @@ PHP Complete allows you to install multiple PHP versions (5.6, 7.0, 7.1, 7.2, 7.
 
 By installing all the required PHP versions using PHP Complete, you can ensure that your development environment remains intact even after uninstalling BrewWorks. This approach saves time and effort in rebuilding the environment from scratch.
 
-For more information on phpcomplete and its features, please refer to the [phpcomplete README](phpcomplete.rb).
+For more information on phpcomplete and its features, please refer to the [phpcomplete README](README-phpcomplete.md).
 
 ## FAQ and Best Practices
 
