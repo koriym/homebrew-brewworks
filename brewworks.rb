@@ -32,6 +32,11 @@ class Brewworks < Formula
 
   DEPENDENCIES.each { |dep| depends_on dep }
 
+  # Public: Install the project
+  #
+  # Creates necessary directories and writes configuration files.
+  # Initializes the MySQL database and creates symlinks for manage_services.sh script.
+  #
   def install
     project_dir = Pathname.new(prefix)/PROJECT_NAME
     script_dir = Pathname.new(prefix)/"script"
