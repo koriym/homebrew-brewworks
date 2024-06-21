@@ -1,6 +1,6 @@
 # BrewWorks - Native and Isolated PHP Development Environments
 
-<img src="https://github.com/koriym/homebrew-brewworks/assets/529021/d02bc876-8c7d-40d6-b2c1-b845d469f7f7" width=35% alt="brewwork logo" >
+<img src="https://github.com/koriym/homebrew-brewworks/assets/529021/d02bc876-8c7d-40d6-b2c1-b845d469f7f7" width=45% alt="brewwork logo" >
 
 BrewWorks is a collection of Homebrew formulas designed to simplify the setup and management of PHP development environments on macOS and Linux (including WSL on Windows). It provides two main formulas:
 
