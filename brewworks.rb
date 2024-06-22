@@ -178,8 +178,6 @@ class Brewworks < Formula
         LoadModule dir_module lib/httpd/modules/mod_dir.so
         
         ServerName localhost
-        User www
-        Group www
         
         <IfModule dir_module>
             DirectoryIndex index.php index.html
