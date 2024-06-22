@@ -3,7 +3,7 @@ require 'etc'
 
 class Brewworks < Formula
   url "file:///dev/null"
-  version "1.0.0"
+  version "1.0.1"
 
   # -- Begin Configuration Section --
   PROJECT_NAME = "brewworks"
