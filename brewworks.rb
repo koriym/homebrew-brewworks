@@ -173,8 +173,6 @@ class Brewworks < Formula
         LoadModule mpm_prefork_module lib/httpd/modules/mod_mpm_prefork.so
         LoadModule authz_core_module lib/httpd/modules/mod_authz_core.so
         LoadModule authz_host_module lib/httpd/modules/mod_authz_host.so
-        LoadModule authz_user_module lib/httpd/modules/mod_authz_user.so
-        LoadModule unixd_module lib/httpd/modules/mod_unixd.so
         LoadModule dir_module lib/httpd/modules/mod_dir.so
         
         ServerName localhost
