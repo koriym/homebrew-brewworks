@@ -224,6 +224,7 @@ class Brewworks < Formula
       #{HOMEBREW_PREFIX}/opt/httpd/bin:\
       #{HOMEBREW_PREFIX}/opt/node/bin:$PATH"
       export PHP_INI_SCAN_DIR="#{config_dir}"
+      alias php="#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/php -c #{config_dir}/php.ini"
       alias mysql="#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql"
       #{PORTS[:mysql].map { |port| "alias mysql@#{port}=\"#{HOMEBREW_PREFIX}/opt/mysql@#{MYSQL_VERSION}/bin/mysql --defaults-file=#{config_dir}/my_#{port}.cnf -h 127.0.0.1\"" }.join("\n")}
     SCRIPT
