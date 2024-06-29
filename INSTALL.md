@@ -5,7 +5,7 @@
 When installing BrewWorks, you may receive a warning message indicating a conflict with an existing `php`.
 To ensure a clean and stable installation, these conflicting packages must be uninstalled.
 
-## Uninstallation is safe:.
+## Uninstallation is safe:
 
 BrewWorks will reinstall the same thing in the version specified, e.g. "php@8.3", instead of the global "php".
 
