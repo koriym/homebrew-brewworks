@@ -68,16 +68,20 @@ $> ulimit -n 4096
 
 If the error persists, you may need to further adjust the limit by modifying the `/etc/security/limits.conf` file within your WSL environment and restarting your WSL instance.
 
+## I got a warning that I have a conflict with installed `php`.
+
+See [INSTALL.md](./INSTALL.md) for more information.
+
 ## Why was BrewWorks created?
 
-BrewWorks was created to streamline the process of setting up PHP development environments, addressing the long-standing challenge of building development environments since the inception of PHP. The motivation behind BrewWorks was to provide a simple, efficient, and native solution, particularly for developers who prefer native services over virtualization tools like Docker. The goal was to offer:
+BrewWorks was created to streamline the process of setting up PHP development environments on Mac, addressing the long-standing challenge of building development environments since the inception of PHP. The motivation behind BrewWorks was to provide a simple, efficient, and native solution, particularly for developers who prefer native services over virtualization tools like Docker. The goal was to offer:
 
 - A straightforward and quick setup process.
 - A clean approach that doesn't modify global settings, leaving no traces behind when uninstalled.
 - Transparency and verifiability, with centralized project-based configurations and logs.
 - Easy management of services with custom commands, eliminating the need to remember complex service commands.
 - A tool that requires minimal learning curve, leveraging familiar Homebrew formulas.
-- High-performance environment utilizing native services, without the overhead of virtualization.
+- High-performance environment utilizing native Mac services, without the overhead of virtualization.
 - A free and open-source solution. (requiring no subscription!)
 
 The idea behind BrewWorks was to create a "toolless tool," leveraging Homebrew formulas to fulfill these requirements without the need for a separate software.
