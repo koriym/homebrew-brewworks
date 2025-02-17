@@ -325,17 +325,38 @@ class Brewworks < Formula
     chmod "+x", script_dir/"manage_services.sh"
   end
 
-  def post_install
-    config_dir = Pathname.new(prefix)/PROJECT_NAME/"config"
-    ini_file = config_dir/"php.ini"
-    PHP_EXTENSIONS.each do |ext|
-      unless system("pecl list | grep -q #{ext}")
-        system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "-f", ini_file, "install", ext
-      else
-        puts "#{ext} is already installed."
-      end
+def post_install
+  config_dir = Pathname.new(prefix)/PROJECT_NAME/"config"
+  ini_file = config_dir/"php.ini"
+
+  PHP_EXTENSIONS.each do |ext|
+    ohai "Installing #{ext} extension..."
+    if install_via_homebrew(ext)
+      ohai "Successfully installed #{ext} via Homebrew"
+    else
+      ohai "Falling back to PECL installation for #{ext}..."
+      install_via_pecl(ext, ini_file)
     end
   end
+end
+
+private
+
+def install_via_homebrew(ext)
+  system "brew", "install", "shivammathur/extensions/#{ext}@#{PHP_VERSION}"
+rescue => e
+  ohai "Homebrew installation failed: #{e.message}"
+  false
+end
+
+def install_via_pecl(ext, ini_file)
+  if system("pecl list | grep -q #{ext}")
+    ohai "#{ext} is already installed via PECL."
+    true
+  else
+    system "#{HOMEBREW_PREFIX}/opt/php@#{PHP_VERSION}/bin/pecl", "-f", ini_file, "install", ext
+  end
+end
 
   def caveats
     <<~EOS
