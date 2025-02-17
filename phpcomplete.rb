@@ -1,7 +1,7 @@
 class Phpcomplete < Formula
   desc "Install multiple versions of PHP with XDebug and other PECL packages"
   homepage "https://www.php.net/"
-  version "0.1.0"
+  version "1.0.0"
   url "file:///dev/null"
   sha256 ""
   license "MIT"
