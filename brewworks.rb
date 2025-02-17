@@ -179,10 +179,10 @@ class Brewworks < Formula
         [www]
         listen = 127.0.0.1:#{port}
         pm = dynamic
-        pm.max_children = 10
-        pm.start_servers = 3
-        pm.min_spare_servers = 2
-        pm.max_spare_servers = 4
+        pm.max_children = 20
+        pm.start_servers = 5
+        pm.min_spare_servers = 3
+        pm.max_spare_servers = 7
         access.log = #{@log_dir}/php-fpm-access_#{port}.log
         slowlog = #{@log_dir}/php-fpm-slow_#{port}.log
       CONF
