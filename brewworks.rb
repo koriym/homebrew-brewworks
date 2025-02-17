@@ -38,6 +38,12 @@ class Brewworks < Formula
   # Initializes the MySQL database and creates symlinks for manage_services.sh script.
   #
   def install
+    ohai "Starting brewworks installation."
+    ohai "Note: BrewWorks manages specific versions of PHP packages (php@#{PHP_VERSION})."
+    ohai "If you already have PHP packages installed without a specified version, there may be conflicts."
+    ohai "See https://github.com/koriym/brewworks/INSTALL.md"
+    ohai ""
+    #
     project_dir = Pathname.new(prefix)/PROJECT_NAME
     script_dir = Pathname.new(prefix)/"script"
     public_dir = project_dir/"public"
