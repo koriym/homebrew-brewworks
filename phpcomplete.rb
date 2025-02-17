@@ -1,7 +1,7 @@
 class Phpcomplete < Formula
   desc "Install multiple versions of PHP with XDebug and other PECL packages"
   homepage "https://www.php.net/"
-  version "0.1.0"
+  version "1.0.0"
   url "file:///dev/null"
   sha256 ""
   license "MIT"
@@ -17,17 +17,19 @@ class Phpcomplete < Formula
   depends_on "shivammathur/php/php@8.1"
   depends_on "shivammathur/php/php@8.2"
   depends_on "shivammathur/php/php@8.3"
+  depends_on "shivammathur/php/php@8.4"
   depends_on "imagemagick"
   depends_on "libmemcached"
   depends_on "pkg-config"
   depends_on "zlib"
 
   # PHP versions with additional PECL packages
-  PECL_INSTALL_VERSIONS = ["8.1", "8.2", "8.3"].freeze
+  PECL_INSTALL_VERSIONS = ["8.1", "8.2", "8.3", "8.4"].freeze
 
   # PHP version => Xdebug version
   # Please comment out any unnecessary PHP versions.
   VERSIONS = {
+    "8.4" => "",
     "8.3" => "",
     "8.2" => "",
     "8.1" => "",
