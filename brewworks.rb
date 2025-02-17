@@ -189,9 +189,9 @@ class Brewworks < Formula
         LoadModule authz_core_module lib/httpd/modules/mod_authz_core.so
         LoadModule authz_host_module lib/httpd/modules/mod_authz_host.so
         LoadModule dir_module lib/httpd/modules/mod_dir.so
-        
+
         ServerName localhost
-        
+
         <IfModule dir_module>
             DirectoryIndex index.php index.html
         </IfModule>
