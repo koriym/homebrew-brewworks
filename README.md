@@ -4,15 +4,15 @@
 
 BrewWorks is a collection of Homebrew formulas designed to simplify the setup and management of PHP development environments on macOS and Linux (including WSL on Windows). It provides two main formulas:
 
-1. **[brewworks](README-brewworks.md)**: A powerful formula that allows you to easily set up project-specific development environments with common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js, without using Docker.
+1. **[brewworks](https://koriym.github.io/homebrew-brewworks/README-brewworks.html)**: A powerful formula that allows you to easily set up project-specific development environments with common services such as PHP, MySQL, Redis, Memcached, Nginx, Apache, and Node.js, without using Docker.
 
-2. **[phpcomplete](README-phpcomplete.md)**: A formula that enables you to install multiple versions of PHP along with Xdebug and other popular PECL packages, providing a comprehensive PHP development environment.
+2. **[phpcomplete](https://koriym.github.io/homebrew-brewworks/README-phpcomplete.html)**: A formula that enables you to install multiple versions of PHP along with Xdebug and other popular PECL packages, providing a comprehensive PHP development environment.
 
 ## brewworks
 
 BrewWorks enables you to install and manage all the necessary services for a project in one go, similar to Docker. It generates custom commands for each project, allowing simple management of the development environment.
 
-For more information on brewworks, its features, and how it compares to Docker, please refer to the [brewworks README](README-brewworks.md).
+For more information on brewworks, its features, and how it compares to Docker, please refer to the [brewworks README](https://koriym.github.io/homebrew-brewworks/README-brewworks.html).
 
 ## phpcomplete
 
@@ -20,7 +20,7 @@ PHP Complete allows you to install multiple PHP versions (5.6, 7.0, 7.1, 7.2, 7.
 
 By installing all the required PHP versions using PHP Complete, you can ensure that your development environment remains intact even after uninstalling BrewWorks. This approach saves time and effort in rebuilding the environment from scratch.
 
-For more information on phpcomplete and its features, please refer to the [phpcomplete README](README-phpcomplete.md).
+For more information on phpcomplete and its features, please refer to the [phpcomplete README][(README-phpcomplete.md](https://koriym.github.io/homebrew-brewworks/README-phpcomplete.html)).
 
 ## FAQ and Best Practices
 

@@ -16,7 +16,7 @@ PHP Complete is a Homebrew formula that allows you to install multiple versions 
 ## Installation
 
 ```shell
-brew install phpcomplete
+brew install koriym/brewworks/phpcomplete
 ```
 
 This command will install the specified PHP versions, Xdebug, and the additional PECL packages defined in the formula.
