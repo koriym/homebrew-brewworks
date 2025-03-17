@@ -1,3 +1,27 @@
+# DEPRECATED
+
+This package has been moved to a new package [malt](https://github.com/koriym/homebrew-malt).
+
+Future development and maintenance will be conducted in malt. Current users are encouraged to migrate to the new package.
+
+## Migration
+
+1. Uninstall the old package:
+```bash
+brew uninstall brewworks
+brew untap koriym/brewworks
+```
+
+2. Install the new package:
+```bash
+brew tap koriym/malt
+brew install malt
+```
+
+If you have any questions, please feel free to open an issue in the [malt repository](https://github.com/koriym/homebrew-malt/issues).
+
+---
+
 # BrewWorks - Native and Isolated PHP Development Environments
 
 <img src="https://github.com/koriym/homebrew-brewworks/assets/529021/d02bc876-8c7d-40d6-b2c1-b845d469f7f7" width=45% alt="brewwork logo" >
